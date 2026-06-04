@@ -1,0 +1,46 @@
+---
+name: Hamad Bin Khalifa University
+description: Hamad Bin Khalifa University public developer/API footprint review for APIs.json cataloging.
+url: https://raw.githubusercontent.com/api-evangelist/hbku/refs/heads/main/review.yml
+created: '2026-06-03'
+modified: '2026-06-03'
+reviews:
+  - date: '2026-06-03'
+    rating: 2
+    summary: >-
+      HBKU operates no centralized public developer portal or documented
+      institutional API. Its official website, academic catalog, library, and
+      research management (Elmi) sites resolve live but expose no public
+      programmatic access; catalog and SIS data are gated. The verifiable
+      public, machine-readable footprint is HBKU research output deposited in
+      Manara - Qatar Research Repository (Figshare-powered, hosted by Qatar
+      National Library), which is reachable through Figshare's public REST
+      API v2 and OAI-PMH endpoint — both confirmed live. A research-lab
+      GitHub org (cri-lab-hbku) exists but is not a central university API
+      org. No endpoints were fabricated; only third-party hosting platforms
+      with confirmed public APIs are cataloged as HBKU's API surface.
+    endpoints:
+      - url: https://www.hbku.edu.qa/en/home
+        status: 200
+        note: Official HBKU website; no public API or open-data links advertised.
+      - url: https://catalog.hbku.edu.qa/
+        status: 200
+        note: Academic catalog; print/PDF export only, no API or JSON.
+      - url: https://www.hbku.edu.qa/en/hbku-library
+        status: 200
+        note: HBKU Library; OPAC/databases gated, no public API documented.
+      - url: https://research.hbku.edu.qa/
+        status: 200
+        note: Elmi research management portal; resolves, no public API.
+      - url: https://manara.qnl.qa/hbku
+        status: 202
+        note: HBKU hub on Manara Qatar Research Repository (Figshare-powered, QNL-hosted).
+      - url: https://api.figshare.com/v2/oai?verb=Identify
+        status: 200
+        note: Figshare OAI-PMH v2.0 endpoint live; harvests Manara/HBKU metadata.
+      - url: https://docs.figshare.com/
+        status: 200
+        note: Public Figshare API v2 documentation (base https://api.figshare.com/v2).
+      - url: https://github.com/cri-lab-hbku
+        status: 200
+        note: HBKU Cybersecurity Research Lab GitHub org with public repos; not a central API org.
