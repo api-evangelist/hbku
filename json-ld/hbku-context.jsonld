@@ -1,0 +1,57 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "dct": "http://purl.org/dc/terms/",
+    "hbku": "https://www.hbku.edu.qa/ns#",
+    "@vocab": "https://www.hbku.edu.qa/ns#",
+
+    "institution": {
+      "@id": "schema:CollegeOrUniversity",
+      "@type": "@id"
+    },
+    "name": "schema:name",
+    "url": "schema:url",
+    "description": "schema:description",
+    "foundingDate": "schema:foundingDate",
+    "location": "schema:location",
+    "parentOrganization": { "@id": "schema:parentOrganization", "@type": "@id" },
+
+    "Article": "hbku:Article",
+    "Author": { "@id": "hbku:Author", "@type": "@id" },
+    "Collection": "hbku:Collection",
+    "Category": "hbku:Category",
+    "PublicFile": "hbku:PublicFile",
+
+    "id": "schema:identifier",
+    "title": "schema:name",
+    "doi": { "@id": "schema:identifier", "@type": "schema:PropertyValue" },
+    "handle": "schema:identifier",
+    "published_date": { "@id": "schema:datePublished", "@type": "schema:Date" },
+    "created_date": { "@id": "schema:dateCreated", "@type": "schema:Date" },
+    "defined_type_name": "schema:additionalType",
+    "license": { "@id": "schema:license", "@type": "@id" },
+    "keywords": "schema:keywords",
+    "tags": "schema:keywords",
+    "categories": "schema:about",
+    "citation": "schema:citation",
+    "references": { "@id": "schema:citation", "@type": "@id" },
+
+    "authors": { "@id": "schema:author", "@container": "@list" },
+    "full_name": "schema:name",
+    "first_name": "schema:givenName",
+    "last_name": "schema:familyName",
+    "orcid_id": { "@id": "schema:identifier", "@type": "@id" },
+
+    "files": { "@id": "schema:associatedMedia", "@container": "@list" },
+    "download_url": { "@id": "schema:contentUrl", "@type": "@id" },
+    "size": "schema:contentSize",
+    "mimetype": "schema:encodingFormat"
+  },
+  "@type": "schema:CollegeOrUniversity",
+  "name": "Hamad Bin Khalifa University",
+  "url": "https://www.hbku.edu.qa/en/home",
+  "foundingDate": "2010",
+  "parentOrganization": "https://www.qf.org.qa/",
+  "description": "Research-intensive graduate university in Education City, Doha, Qatar. Public research output is hosted in Manara - Qatar Research Repository and exposed via the Figshare API v2."
+}

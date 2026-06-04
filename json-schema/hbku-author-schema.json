@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/hbku/main/json-schema/hbku-author-schema.json",
+  "title": "Figshare Author",
+  "description": "An author/creator of a research item in Figshare (Manara - Qatar Research Repository). Derived from the Figshare API v2 Author schema.",
+  "type": "object",
+  "required": [
+    "id",
+    "full_name",
+    "first_name",
+    "last_name",
+    "is_active",
+    "url_name",
+    "orcid_id"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Author id",
+      "examples": [97657]
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Author full name",
+      "examples": ["John Doe"]
+    },
+    "first_name": {
+      "type": "string",
+      "description": "Author first name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Author last name"
+    },
+    "is_active": {
+      "type": "boolean",
+      "description": "True if author has published items"
+    },
+    "url_name": {
+      "type": "string",
+      "description": "Author url name",
+      "examples": ["John_Doe"]
+    },
+    "orcid_id": {
+      "type": "string",
+      "description": "Author ORCID",
+      "examples": ["1234-5678-9123-1234"]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/hbku/main/json-structure/hbku-author-structure.json",
+  "name": "FigshareAuthor",
+  "description": "JSON Structure for a Figshare Author/creator (Manara - Qatar Research Repository). Based on the Figshare API v2 Author schema.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "int64", "description": "Author id" },
+    "full_name": { "type": "string", "description": "Author full name" },
+    "first_name": { "type": "string", "description": "Author first name" },
+    "last_name": { "type": "string", "description": "Author last name" },
+    "is_active": { "type": "boolean", "description": "True if author has published items" },
+    "url_name": { "type": "string", "description": "Author url name" },
+    "orcid_id": { "type": "string", "description": "Author ORCID" }
+  },
+  "required": ["id", "full_name", "first_name", "last_name", "is_active", "url_name", "orcid_id"]
+}

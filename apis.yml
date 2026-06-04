@@ -29,6 +29,7 @@ tags:
   - Middle East
 created: '2026-06-03'
 modified: '2026-06-03'
+# modified bumped 2026-06-03: added OpenAPI/spec-derived artifacts
 specificationVersion: '0.19'
 apis:
   - aid: hbku:figshare-api
@@ -49,6 +50,8 @@ apis:
         url: https://docs.figshare.com/
       - type: Authentication
         url: https://docs.figshare.com/#figshare_documentation_oauth
+      - type: OpenAPI
+        url: openapi/hbku-figshare-api.yaml
   - aid: hbku:figshare-oai
     name: Figshare OAI-PMH (Manara - HBKU Research)
     description: >-

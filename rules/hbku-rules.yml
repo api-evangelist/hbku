@@ -1,0 +1,64 @@
+---
+# Spectral ruleset for the Figshare API v2 as cataloged for HBKU (Manara - Qatar
+# Research Repository). Encodes patterns observed in the real OpenAPI 3.0.3 spec
+# downloaded from https://docs.figshare.com/swagger.json
+extends: [[spectral:oas, off]]
+formats:
+  - oas3
+rules:
+  hbku-info-title-present:
+    description: API document must declare an info.title.
+    severity: error
+    given: $.info
+    then:
+      field: title
+      function: truthy
+
+  hbku-info-version-present:
+    description: API document must declare an info.version.
+    severity: error
+    given: $.info
+    then:
+      field: version
+      function: truthy
+
+  hbku-server-is-figshare-v2:
+    description: The production server should be the Figshare API v2 base URL.
+    severity: warn
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions:
+        match: "^https://api\\.figshare\\.com/v2"
+
+  hbku-operations-have-operationid:
+    description: Every operation should declare an operationId.
+    severity: warn
+    given: $.paths[*][get,post,put,delete,patch]
+    then:
+      field: operationId
+      function: truthy
+
+  hbku-operations-have-tags:
+    description: Operations should be grouped with at least one tag.
+    severity: warn
+    given: $.paths[*][get,post,put,delete,patch]
+    then:
+      field: tags
+      function: truthy
+
+  hbku-uses-oauth2-security:
+    description: Write/private operations rely on the OAuth2 security scheme.
+    severity: info
+    given: $.components.securitySchemes
+    then:
+      field: OAuth2
+      function: truthy
+
+  hbku-article-has-doi:
+    description: The Article schema should expose a DOI property for citation.
+    severity: warn
+    given: $.components.schemas.Article.properties
+    then:
+      field: doi
+      function: truthy

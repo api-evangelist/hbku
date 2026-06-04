@@ -1,0 +1,76 @@
+{
+  "operation": "GET /articles/{article_id}",
+  "description": "Representative response retrieving a single public article (ArticleComplete) including authors, files, categories, and timeline.",
+  "request": {
+    "method": "GET",
+    "url": "https://api.figshare.com/v2/articles/1434614"
+  },
+  "response": {
+    "id": 1434614,
+    "title": "Test article title",
+    "doi": "10.6084/m9.figshare.1434614",
+    "handle": "",
+    "url": "https://api.figshare.com/v2/articles/1434614",
+    "url_public_html": "https://figshare.com/articles/media/Test_article_title/1434614",
+    "url_public_api": "https://api.figshare.com/v2/articles/1434614",
+    "published_date": "2017-05-18T11:49:03Z",
+    "thumb": "https://ndownloader.figshare.com/files/3000002/preview/thumb.png",
+    "defined_type": 3,
+    "defined_type_name": "media",
+    "group_id": 1234,
+    "figshare_url": "https://figshare.com/articles/media/Test_article_title/1434614",
+    "description": "article description",
+    "version": 1,
+    "status": "public",
+    "size": 69939,
+    "is_public": true,
+    "is_embargoed": false,
+    "is_metadata_record": false,
+    "citation": "Doe, John (2017): Test article title. figshare. Media.",
+    "tags": ["t1", "t2", "t3"],
+    "keywords": ["t1", "t2", "t3"],
+    "references": ["http://figshare.com"],
+    "license": {
+      "value": 1,
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    "authors": [
+      {
+        "id": 97657,
+        "full_name": "John Doe",
+        "first_name": "John",
+        "last_name": "Doe",
+        "is_active": true,
+        "url_name": "John_Doe",
+        "orcid_id": "1234-5678-9123-1234"
+      }
+    ],
+    "categories": [
+      {
+        "id": 11,
+        "parent_id": 1,
+        "title": "Anatomy",
+        "path": "/450/1024/6532",
+        "source_id": "300204",
+        "taxonomy_id": 4
+      }
+    ],
+    "files": [
+      {
+        "id": 3000002,
+        "name": "test.xls",
+        "size": 14848,
+        "is_link_only": false,
+        "download_url": "https://ndownloader.figshare.com/files/3000002",
+        "supplied_md5": "043a51806d646e88cafbf19e7b82846f",
+        "computed_md5": "043a51806d646e88cafbf19e7b82846f",
+        "mimetype": "application/vnd.ms-excel"
+      }
+    ],
+    "timeline": {
+      "posted": "2017-05-18T11:49:03",
+      "firstOnline": "2017-05-18T11:49:03"
+    }
+  }
+}

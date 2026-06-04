@@ -1,0 +1,69 @@
+---
+vocabulary:
+  name: HBKU / Figshare Research Repository Vocabulary
+  description: >-
+    Controlled vocabulary for the machine-readable footprint of Hamad Bin Khalifa
+    University research output, hosted in Manara - Qatar Research Repository and
+    exposed through the Figshare API v2 and OAI-PMH endpoint. Terms are drawn from
+    the real Figshare OpenAPI 3.0.3 specification and OAI-PMH metadata formats.
+  version: "1.0.0"
+  terms:
+    - term: Article
+      definition: >-
+        A published research item (dataset, figure, media, paper, etc.) in
+        Figshare, identified by an integer id and a DOI.
+      tags: [figshare, object, research]
+    - term: Author
+      definition: >-
+        A creator of a research item, optionally identified by an ORCID.
+      tags: [figshare, object, people]
+    - term: Collection
+      definition: >-
+        A curated grouping of articles, identified by an id and DOI.
+      tags: [figshare, object, research]
+    - term: Category
+      definition: >-
+        A subject classification assigned to an article from a standard taxonomy.
+      tags: [figshare, object, taxonomy]
+    - term: DOI
+      definition: >-
+        Digital Object Identifier minted for articles and collections enabling
+        persistent citation of HBKU research output.
+      tags: [identifier, citation]
+    - term: Handle
+      definition: A Handle System persistent identifier assigned to items.
+      tags: [identifier]
+    - term: Timeline
+      definition: >-
+        The set of significant dates for an item (posted, firstOnline, revision,
+        submission).
+      tags: [figshare, metadata]
+    - term: PublicFile
+      definition: >-
+        A downloadable file attached to an article, with size, MD5 checksums, and
+        download URL.
+      tags: [figshare, object, files]
+    - term: OAI-PMH
+      definition: >-
+        Open Archives Initiative Protocol for Metadata Harvesting v2.0 endpoint
+        used to harvest public article metadata including HBKU works.
+      tags: [harvesting, protocol, metadata]
+    - term: oai_dc
+      definition: Dublin Core metadata format exposed by the OAI-PMH endpoint.
+      tags: [oai-pmh, metadata, dublin-core]
+    - term: DataCite
+      definition: DataCite metadata format exposed by the OAI-PMH endpoint.
+      tags: [oai-pmh, metadata]
+    - term: set
+      definition: >-
+        An OAI-PMH set used to scope harvesting to a specific portal such as the
+        Manara - Qatar Research Repository.
+      tags: [oai-pmh, harvesting]
+    - term: OAuth2
+      definition: >-
+        The authorization-code OAuth2 scheme securing private and write
+        operations on the Figshare API v2.
+      tags: [authentication, security]
+    - term: License
+      definition: The reuse license assigned to an article (e.g. CC BY 4.0).
+      tags: [figshare, metadata, open-access]

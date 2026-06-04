@@ -1,0 +1,37 @@
+{
+  "operation": "POST /articles/search",
+  "description": "Representative search request/response. Search query can target HBKU research output hosted in Manara - Qatar Research Repository by institution or keyword.",
+  "request": {
+    "method": "POST",
+    "url": "https://api.figshare.com/v2/articles/search",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "search_for": "Hamad Bin Khalifa University",
+      "page": 1,
+      "page_size": 10,
+      "order": "published_date",
+      "order_direction": "desc"
+    }
+  },
+  "response": [
+    {
+      "id": 1434614,
+      "title": "Test article title",
+      "doi": "10.6084/m9.figshare.1434614",
+      "handle": "",
+      "url": "https://api.figshare.com/v2/articles/1434614",
+      "url_public_html": "https://figshare.com/articles/media/Test_article_title/1434614",
+      "url_public_api": "https://api.figshare.com/v2/articles/1434614",
+      "published_date": "2017-05-18T11:49:03Z",
+      "thumb": "https://ndownloader.figshare.com/files/3000002/preview/thumb.png",
+      "defined_type": 3,
+      "defined_type_name": "media",
+      "group_id": 1234,
+      "timeline": {
+        "posted": "2017-05-18T11:49:03"
+      }
+    }
+  ]
+}

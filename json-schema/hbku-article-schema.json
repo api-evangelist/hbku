@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/hbku/main/json-schema/hbku-article-schema.json",
+  "title": "Figshare Article",
+  "description": "A published research article/item in Figshare (Manara - Qatar Research Repository hosts HBKU works). Derived from the Figshare API v2 Article schema.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "doi",
+    "handle",
+    "url",
+    "url_public_html",
+    "url_public_api",
+    "published_date",
+    "thumb",
+    "defined_type",
+    "defined_type_name",
+    "group_id"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Unique identifier for article",
+      "examples": [1434614]
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of article",
+      "examples": ["Test article title"]
+    },
+    "doi": {
+      "type": "string",
+      "description": "DOI",
+      "examples": ["10.6084/m9.figshare.1434614"]
+    },
+    "handle": {
+      "type": "string",
+      "description": "Handle"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "API endpoint for article"
+    },
+    "url_public_html": {
+      "type": "string",
+      "format": "uri",
+      "description": "Public site endpoint for article"
+    },
+    "url_public_api": {
+      "type": "string",
+      "format": "uri",
+      "description": "Public API endpoint for article"
+    },
+    "url_private_html": {
+      "type": "string",
+      "format": "uri",
+      "description": "Private site endpoint for article"
+    },
+    "url_private_api": {
+      "type": "string",
+      "format": "uri",
+      "description": "Private API endpoint for article"
+    },
+    "published_date": {
+      "type": ["string", "null"],
+      "description": "Date when article was published"
+    },
+    "thumb": {
+      "type": "string",
+      "description": "Thumbnail image url"
+    },
+    "defined_type": {
+      "type": "integer",
+      "description": "Type identifier for article"
+    },
+    "defined_type_name": {
+      "type": "string",
+      "description": "Name of the article type",
+      "examples": ["dataset", "journal contribution"]
+    },
+    "group_id": {
+      "type": "integer",
+      "description": "Group id of the article"
+    },
+    "resource_title": {
+      "type": ["string", "null"],
+      "description": "Title of the linked external resource"
+    },
+    "resource_doi": {
+      "type": ["string", "null"],
+      "description": "DOI of the linked external resource"
+    },
+    "timeline": {
+      "type": "object",
+      "description": "Timeline of significant dates for the article",
+      "properties": {
+        "posted": { "type": "string" },
+        "firstOnline": { "type": "string" },
+        "revision": { "type": "string" },
+        "submission": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}
