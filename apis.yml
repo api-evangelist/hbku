@@ -69,6 +69,10 @@ apis:
       - type: Documentation
         url: https://help.figshare.com/article/how-to-use-the-oai-pmh
 common:
+  - type: DomainSecurity
+    url: security/hbku-domain-security.yml
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
   - type: OAuthScopes
     url: scopes/hbku-scopes.yml
   - type: Website
