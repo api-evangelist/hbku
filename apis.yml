@@ -69,6 +69,8 @@ apis:
       - type: Documentation
         url: https://help.figshare.com/article/how-to-use-the-oai-pmh
 common:
+  - type: OAuthScopes
+    url: scopes/hbku-scopes.yml
   - type: Website
     url: https://www.hbku.edu.qa/en/home
   - type: GitHub
@@ -89,6 +91,8 @@ common:
     url: finops/hbku-finops.yml
   - type: Review
     url: review.yml
+  - url: https://www.hbku.edu.qa/en/news
+    type: Blog
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
