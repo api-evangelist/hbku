@@ -1,0 +1,14 @@
+{
+  "repo": "hbku",
+  "feeds": [
+    {
+      "source": "https://www.hbku.edu.qa/en/news",
+      "feed_url": "https://www.hbku.edu.qa/en/news",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "fetched": "2026-07-11T11:50:51Z",
+  "post_count": 9
+}
