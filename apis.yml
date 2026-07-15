@@ -69,6 +69,8 @@ apis:
       - type: Documentation
         url: https://help.figshare.com/article/how-to-use-the-oai-pmh
 common:
+  - type: AgenticAccess
+    url: agentic-access/hbku-agentic-access.yml
   - type: DomainSecurity
     url: security/hbku-domain-security.yml
   - type: Authentication
