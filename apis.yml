@@ -43,7 +43,7 @@ tags:
 created: '2026-06-03'
 modified: '2026-06-03'
 # modified bumped 2026-06-03: added OpenAPI/spec-derived artifacts
-specificationVersion: '0.19'
+specificationVersion: '0.23'
 apis:
 - aid: hbku:figshare-oai
   name: Figshare OAI-PMH (Manara - HBKU Research)
