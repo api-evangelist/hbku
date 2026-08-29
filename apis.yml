@@ -232,6 +232,9 @@ apis:
   - type: Authentication
     url: https://docs.figshare.com/#figshare_documentation_oauth
 common:
+  - type: CapabilityMap
+    url: capabilities/hbku-capability-edges.yml
+    name: Hamad Bin Khalifa University Business Capability Map
   - type: AgenticAccess
     url: agentic-access/hbku-agentic-access.yml
   - type: DomainSecurity
