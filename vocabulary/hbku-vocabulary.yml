@@ -1,69 +1,71 @@
----
+generated: '2026-08-30'
+method: derived
+source:
+- openapi/_original/hbku-fanar-api-openapi.json
+- openapi/hbku-farasa-api-openapi.yml
 vocabulary:
-  name: HBKU / Figshare Research Repository Vocabulary
+  name: Hamad Bin Khalifa University Programmable Surface Vocabulary
   description: >-
-    Controlled vocabulary for the machine-readable footprint of Hamad Bin Khalifa
-    University research output, hosted in Manara - Qatar Research Repository and
-    exposed through the Figshare API v2 and OAI-PMH endpoint. Terms are drawn from
-    the real Figshare OpenAPI 3.0.3 specification and OAI-PMH metadata formats.
-  version: "1.0.0"
+    Controlled vocabulary for the machine-readable footprint Hamad Bin Khalifa University actually
+    operates: the Fanar Arabic generative-AI platform and the Farasa Arabic NLP toolkit, both built
+    by the Qatar Computing Research Institute, an HBKU research institute. Terms are drawn from the
+    contracts themselves. This file replaces a Figshare vocabulary that described a vendor's
+    repository object model rather than anything HBKU engineers.
+  version: "2.0.0"
   terms:
-    - term: Article
-      definition: >-
-        A published research item (dataset, figure, media, paper, etc.) in
-        Figshare, identified by an integer id and a DOI.
-      tags: [figshare, object, research]
-    - term: Author
-      definition: >-
-        A creator of a research item, optionally identified by an ORCID.
-      tags: [figshare, object, people]
-    - term: Collection
-      definition: >-
-        A curated grouping of articles, identified by an id and DOI.
-      tags: [figshare, object, research]
-    - term: Category
-      definition: >-
-        A subject classification assigned to an article from a standard taxonomy.
-      tags: [figshare, object, taxonomy]
-    - term: DOI
-      definition: >-
-        Digital Object Identifier minted for articles and collections enabling
-        persistent citation of HBKU research output.
-      tags: [identifier, citation]
-    - term: Handle
-      definition: A Handle System persistent identifier assigned to items.
-      tags: [identifier]
-    - term: Timeline
-      definition: >-
-        The set of significant dates for an item (posted, firstOnline, revision,
-        submission).
-      tags: [figshare, metadata]
-    - term: PublicFile
-      definition: >-
-        A downloadable file attached to an article, with size, MD5 checksums, and
-        download URL.
-      tags: [figshare, object, files]
-    - term: OAI-PMH
-      definition: >-
-        Open Archives Initiative Protocol for Metadata Harvesting v2.0 endpoint
-        used to harvest public article metadata including HBKU works.
-      tags: [harvesting, protocol, metadata]
-    - term: oai_dc
-      definition: Dublin Core metadata format exposed by the OAI-PMH endpoint.
-      tags: [oai-pmh, metadata, dublin-core]
-    - term: DataCite
-      definition: DataCite metadata format exposed by the OAI-PMH endpoint.
-      tags: [oai-pmh, metadata]
-    - term: set
-      definition: >-
-        An OAI-PMH set used to scope harvesting to a specific portal such as the
-        Manara - Qatar Research Repository.
-      tags: [oai-pmh, harvesting]
-    - term: OAuth2
-      definition: >-
-        The authorization-code OAuth2 scheme securing private and write
-        operations on the Figshare API v2.
-      tags: [authentication, security]
-    - term: License
-      definition: The reuse license assigned to an article (e.g. CC BY 4.0).
-      tags: [figshare, metadata, open-access]
+  - term: Fanar
+    definition: >-
+      Qatar's Arabic generative-AI platform, developed by QCRI at HBKU with support from Qatar's
+      Ministry of Communications and Information Technology. Also the default model identifier.
+    tags: [fanar, platform, ai]
+  - term: Model
+    definition: >-
+      A named generation endpoint in the Fanar family, listed by GET /v1/models as an AvailableModel
+      with id, object, created and owned_by. The family spans chat (Fanar-C, Fanar-S), religious
+      question answering (Fanar-Sadiq), speech (Fanar-Aura), vision (Fanar-Oryx), translation
+      (Fanar-Shaheen-MT), poetry (Fanar-Diwan) and safety (Fanar-Guard).
+    tags: [fanar, object, ai]
+  - term: Chat Completion
+    definition: >-
+      The primary Fanar operation, POST /v1/chat/completions. OpenAI-client compatible — the
+      provider's own sample points the openai SDK at base_url https://api.fanar.qa/v1 — and supports
+      streaming over text/event-stream.
+    tags: [fanar, operation, ai]
+  - term: Error
+    definition: >-
+      Fanar's uniform failure envelope, {"error": {code, message, status, param, type}}, with a
+      closed fourteen-value ErrorCode enum. See errors/hbku-fanar-errors.yml.
+    tags: [fanar, object, errors]
+  - term: Moderation
+    definition: >-
+      POST /v1/moderations, Fanar's content-safety classification endpoint, backed by the
+      Fanar-Guard model family.
+    tags: [fanar, operation, safety]
+  - term: Farasa
+    definition: >-
+      "Insight" in Arabic. QCRI's Arabic text-processing toolkit, distributed both as downloadable
+      JARs and as a keyed web API at farasa.qcri.org/webapi/.
+    tags: [farasa, platform, nlp]
+  - term: Segmentation
+    definition: Splitting Arabic orthographic words into clitics and stems. POST /webapi/segmentation/.
+    tags: [farasa, operation, nlp]
+  - term: Diacritization
+    definition: Restoring the short-vowel marks Arabic text usually omits. POST /webapi/diacritize/.
+    tags: [farasa, operation, nlp]
+  - term: api_key
+    definition: >-
+      Farasa's credential, carried as a request-BODY field rather than a header — the one place
+      Farasa departs from common practice. Issued on registration at farasa.qcri.org.
+    tags: [farasa, authentication]
+  - term: QCRI
+    definition: >-
+      Qatar Computing Research Institute, a research institute of Hamad Bin Khalifa University.
+      qcri.org redirects to hbku.edu.qa/en/qcri, which is what makes both APIs above
+      institution-operated rather than tenant or vendor surfaces.
+    tags: [institution, provenance]
+  - term: Manara
+    definition: >-
+      Manara — Qatar Research Repository, the Figshare platform operated by Qatar National Library
+      where HBKU research output is deposited. HBKU's relationship to it is a tenant one: the
+      deposits are HBKU's, the contract is Figshare's.
+    tags: [repository, tenant, provenance]

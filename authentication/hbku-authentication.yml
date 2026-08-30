@@ -1,18 +1,62 @@
-generated: '2026-07-11'
+generated: '2026-08-30'
 method: derived
-source: openapi/hbku-figshare-api.yaml
+source:
+- openapi/_original/hbku-fanar-api-openapi.json
+- openapi/hbku-farasa-api-openapi.yml
+provider: Hamad Bin Khalifa University
+providerId: hbku
+description: >-
+  Authentication across the two APIs Hamad Bin Khalifa University actually operates. Both are
+  key-based and both require registration; neither offers OAuth, and neither publishes a scope
+  vocabulary, so this repository carries no scopes/ artifact. This file replaces an earlier one
+  derived from Figshare's OAuth contract, which described a vendor's authentication scheme and not
+  the university's.
 summary:
   types:
-  - oauth2
-  oauth2_flows:
-  - authorizationCode
+  - http-bearer
+  - api-key-in-body
+  oauth2_flows: []
+  scopes_published: false
 schemes:
-- name: OAuth2
-  type: oauth2
-  flows:
-  - flow: authorizationCode
-    authorizationUrl: https://figshare.com/account/applications/authorize
-    tokenUrl: https://api.figshare.com/v2/token
-    scopes: 1
+- name: Bearer
+  api: Fanar API
+  x-operator: institution
+  type: http
+  scheme: bearer
+  in: header
+  parameter: Authorization
+  description: >-
+    "Provide your API key in the Authorization header using the Bearer scheme." Declared at
+    components.securitySchemes.Bearer and applied document-wide via a root security requirement, so
+    every one of the 12 operations is authenticated.
+  registration: https://api.fanar.qa/request/en
+  verified:
+    probe: GET https://api.fanar.qa/v1/models
+    status: 401
+    body: '{"error":{"code":"invalid_authentication","message":"Invalid authentication","status":401}}'
+    date: '2026-08-30'
   sources:
-  - openapi/hbku-figshare-api.yaml
+  - openapi/_original/hbku-fanar-api-openapi.json
+- name: api_key
+  api: Farasa Web API
+  x-operator: institution
+  type: apiKey
+  in: body
+  parameter: api_key
+  description: >-
+    Farasa carries its key as a body field alongside the text, in both the JSON and the
+    form-encoded variants. This is the provider's own documented pattern, taken from the Python,
+    Java, JavaScript and curl samples published on each module page — not a reconstruction.
+  registration: https://farasa.qcri.org/
+  verified:
+    probe: POST https://farasa.qcri.org/webapi/lemmatization/
+    status: 400
+    body: 'invalid api key. please register at: https://farasa.qcri.org'
+    date: '2026-08-30'
+  sources:
+  - https://farasa.qcri.org/lemmatization/
+notes: >-
+  HBKU publishes no institutional identity-federation surface. It is not registered in eduGAIN
+  (technical.edugain.org holds no Qatari federation and no hbku.edu.qa entity, checked 2026-08-30),
+  idp.hbku.edu.qa does not resolve, and sso.hbku.edu.qa presents a certificate that does not match
+  the hostname. So there is no IdentityFederation pointer to record.
