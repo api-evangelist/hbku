@@ -77,32 +77,87 @@ x-enrichment:
   run: '2026-08-30'
   operator_axis_settled: true
 apis:
-- aid: hbku:fanar-api
-  name: Fanar API
-  x-operator: institution
+- aid: hbku:elmi-oai-pmh
+  name: Elmi Research Portal — OAI-PMH
+  x-operator: tenant
   description: >-
-    Fanar is Qatar's Arabic generative-AI platform, developed by the Qatar Computing Research
-    Institute at Hamad Bin Khalifa University with support from Qatar's Ministry of Communications
-    and Information Technology. The API publishes a first-party OpenAPI 3.1.0 document at
-    api.fanar.qa/openapi.json: 11 paths and 12 operations spanning chat completions (streaming over
-    text/event-stream), text-to-speech, transcription, custom voices, image generation, translation,
-    poetry generation, moderation, tokenization and model listing. It is OpenAI-client compatible —
-    the provider's own sample points the openai SDK at base_url https://api.fanar.qa/v1. Bearer
-    authentication, fourteen documented error statuses behind a single Error envelope, and a
-    published per-model rate-limit table with x-ratelimit-* and ratelimit-policy response headers.
-    Access is by request. Verified live 2026-08-30: GET /v1/models returns 401 invalid_authentication.
+    HBKU's research information system, Elmi, runs Elsevier Pure on the university's own subdomain and
+    exposes a public, unauthenticated OAI-PMH 2.0 harvesting endpoint at elmi.hbku.edu.qa/ws/oai. Confirmed
+    by the protocol handshake on 2026-08-30, not by link presence: ?verb=Identify returns a valid envelope
+    declaring adminEmail elmi@hbku.edu.qa, protocolVersion 2.0 and earliestDatestamp 2024-07-18; ?verb=ListMetadataFormats
+    offers oai_dc, qdc, mods, mods_swepub, nl_didl, xmetadiss and uketd_dc; ?verb=ListSets offers persons:all,
+    publications:all, publications:withFiles and per-year sets; a ListRecords call returned 96KB of records
+    with no credential. This is the one education-regime domain standard HBKU meets. Marked tenant because
+    the software is Elsevier's (repositoryName "Pure OAI Repository", and the Pure REST API at /ws/api
+    canonicalizes to api.elsevierpure.com) — the metadata is HBKU's, the contract is not. Elsevier's Pure
+    REST API on the same host requires an API key (401 on /ws/api/persons) and no Pure specification is
+    stored under this slug.
+  humanURL: https://elmi.hbku.edu.qa/
+  baseURL: https://elmi.hbku.edu.qa/ws/oai
+  tags:
+  - Research Data
+  - OAI-PMH
+  - Metadata
+  - Harvesting
+  - Open Access
+  properties:
+  - type: Website
+    url: https://elmi.hbku.edu.qa/
+  - type: Conformance
+    url: conformance/hbku-education-standards.yml
+- aid: hbku:course-catalog-search
+  name: HBKU Academic Catalog — Course Search
+  x-operator: tenant
+  description: >-
+    HBKU publishes its academic catalog on its own host, catalog.hbku.edu.qa, running CourseLeaf. The
+    catalog ships a JSON course-search endpoint at /course-search/api/ that answers unauthenticated POSTs
+    — but its backing term database is missing server-side: a well-formed query against the term the page
+    itself advertises (srcdb 202410) returns HTTP 200 with {"fatal":"Could not execute database query:
+    Cannot open database: \"fose-clss202410\""}. So the surface is live and reachable and cannot currently
+    return course data. Recorded because a course catalog is one of the few genuinely institutional surface
+    classes and this one is real; marked tenant because the interface is CourseLeaf's, on HBKU's host
+    with HBKU's data. No CourseLeaf specification is stored under this slug.
+  humanURL: https://catalog.hbku.edu.qa/course-search/
+  baseURL: https://catalog.hbku.edu.qa/course-search/api/
+  tags:
+  - Course Catalog
+  - Academic
+  - CourseLeaf
+  properties:
+  - type: Website
+    url: https://catalog.hbku.edu.qa/
+  - type: Documentation
+    url: https://catalog.hbku.edu.qa/course-search/
+- aid: hbku:manara-repository
+  name: Manara — Qatar Research Repository (HBKU portal)
+  x-operator: tenant
+  description: >-
+    HBKU's scholarly output is deposited in Manara — Qatar Research Repository, a Figshare platform operated
+    by Qatar National Library, with an HBKU portal at manara.qnl.qa/hbku. The deposits, DOIs and author
+    records are HBKU's; the contract is Figshare's and the hosting is QNL's, so this is recorded as a
+    relationship and NOT as an HBKU API. No Figshare specification is stored under this slug. The host
+    answers with an AWS WAF challenge (HTTP 202, x-amzn-waf-action: challenge, probed 2026-08-30) — live,
+    but not machine-readable to an unattended client.
+  humanURL: https://manara.qnl.qa/hbku
+  baseURL: null
+  tags:
+  - Research Data
+  - Repository
+  - Open Access
+  - Figshare
+  properties:
+  - type: Website
+    url: https://manara.qnl.qa/hbku
+- aid: hbku:hbku-arabic-nlp-api
+  name: Hamad Bin Khalifa University Arabic NLP API
+  description: Arabic language processing modules.
   humanURL: https://api.fanar.qa/docs
   baseURL: https://api.fanar.qa
   tags:
-  - Artificial Intelligence
-  - Large Language Models
-  - Arabic
-  - Speech
-  - Translation
-  - Content Moderation
+  - Arabic NLP
   properties:
   - type: OpenAPI
-    url: openapi/hbku-fanar-api-openapi.yml
+    url: openapi/hbku-arabic-nlp-api-openapi.yml
   - type: APIReference
     url: https://api.fanar.qa/docs
   - type: Documentation
@@ -133,110 +188,399 @@ apis:
     url: lifecycle/hbku-lifecycle.yml
   - type: SourceCode
     url: https://huggingface.co/QCRI
-- aid: hbku:farasa-api
-  name: Farasa Web API
-  x-operator: institution
-  description: >-
-    Farasa ("insight") is the Arabic text-processing toolkit built by the Arabic Language
-    Technologies group at QCRI, Hamad Bin Khalifa University, and offered free to registered users
-    as a keyed web API. Six endpoints were confirmed live on 2026-08-30 by unauthenticated POST
-    probes — segmentation, lemmatization, pos, ner, diacritize and spellcheck each returned 400
-    "invalid api key", while sibling module paths returned 404. The api_key travels in the request
-    body rather than a header. No OpenAPI is published by the provider; the definition in this repo
-    is DERIVED from QCRI's own Python/Java/JavaScript/curl samples plus those probes, and the
-    success payload shape is deliberately left unasserted because it could not be observed.
-  humanURL: https://farasa.qcri.org/
-  baseURL: https://farasa.qcri.org/webapi
-  tags:
-  - Natural Language Processing
-  - Arabic
-  - Research
-  properties:
-  - type: OpenAPI
-    url: openapi/hbku-farasa-api-openapi.yml
   - type: Documentation
     url: https://farasa.qcri.org/
   - type: Reference
     url: https://alt.qcri.org/farasa/
   - type: SignUp
     url: https://farasa.qcri.org/
-  - type: Authentication
-    url: authentication/hbku-authentication.yml
   - type: Examples
     url: examples/hbku-farasa-invalid-key-example.json
-- aid: hbku:elmi-oai-pmh
-  name: Elmi Research Portal — OAI-PMH
-  x-operator: tenant
-  description: >-
-    HBKU's research information system, Elmi, runs Elsevier Pure on the university's own subdomain
-    and exposes a public, unauthenticated OAI-PMH 2.0 harvesting endpoint at
-    elmi.hbku.edu.qa/ws/oai. Confirmed by the protocol handshake on 2026-08-30, not by link
-    presence: ?verb=Identify returns a valid envelope declaring adminEmail elmi@hbku.edu.qa,
-    protocolVersion 2.0 and earliestDatestamp 2024-07-18; ?verb=ListMetadataFormats offers oai_dc,
-    qdc, mods, mods_swepub, nl_didl, xmetadiss and uketd_dc; ?verb=ListSets offers persons:all,
-    publications:all, publications:withFiles and per-year sets; a ListRecords call returned 96KB of
-    records with no credential. This is the one education-regime domain standard HBKU meets. Marked
-    tenant because the software is Elsevier's (repositoryName "Pure OAI Repository", and the Pure
-    REST API at /ws/api canonicalizes to api.elsevierpure.com) — the metadata is HBKU's, the
-    contract is not. Elsevier's Pure REST API on the same host requires an API key (401 on
-    /ws/api/persons) and no Pure specification is stored under this slug.
-  humanURL: https://elmi.hbku.edu.qa/
-  baseURL: https://elmi.hbku.edu.qa/ws/oai
+- aid: hbku:hbku-audio-api
+  name: Hamad Bin Khalifa University Audio API
+  description: The Audio API from Hamad Bin Khalifa University — 4 operation(s) for audio.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
   tags:
-  - Research Data
-  - OAI-PMH
-  - Metadata
-  - Harvesting
-  - Open Access
+  - Audio
   properties:
-  - type: Website
-    url: https://elmi.hbku.edu.qa/
-  - type: Conformance
-    url: conformance/hbku-education-standards.yml
-- aid: hbku:course-catalog-search
-  name: HBKU Academic Catalog — Course Search
-  x-operator: tenant
-  description: >-
-    HBKU publishes its academic catalog on its own host, catalog.hbku.edu.qa, running CourseLeaf.
-    The catalog ships a JSON course-search endpoint at /course-search/api/ that answers
-    unauthenticated POSTs — but its backing term database is missing server-side: a well-formed
-    query against the term the page itself advertises (srcdb 202410) returns HTTP 200 with
-    {"fatal":"Could not execute database query: Cannot open database: \"fose-clss202410\""}. So
-    the surface is live and reachable and cannot currently return course data. Recorded because a
-    course catalog is one of the few genuinely institutional surface classes and this one is real;
-    marked tenant because the interface is CourseLeaf's, on HBKU's host with HBKU's data. No
-    CourseLeaf specification is stored under this slug.
-  humanURL: https://catalog.hbku.edu.qa/course-search/
-  baseURL: https://catalog.hbku.edu.qa/course-search/api/
-  tags:
-  - Course Catalog
-  - Academic
-  - CourseLeaf
-  properties:
-  - type: Website
-    url: https://catalog.hbku.edu.qa/
+  - type: OpenAPI
+    url: openapi/hbku-audio-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
   - type: Documentation
-    url: https://catalog.hbku.edu.qa/course-search/
-- aid: hbku:manara-repository
-  name: Manara — Qatar Research Repository (HBKU portal)
-  x-operator: tenant
-  description: >-
-    HBKU's scholarly output is deposited in Manara — Qatar Research Repository, a Figshare platform
-    operated by Qatar National Library, with an HBKU portal at manara.qnl.qa/hbku. The deposits,
-    DOIs and author records are HBKU's; the contract is Figshare's and the hosting is QNL's, so this
-    is recorded as a relationship and NOT as an HBKU API. No Figshare specification is stored under
-    this slug. The host answers with an AWS WAF challenge (HTTP 202, x-amzn-waf-action: challenge,
-    probed 2026-08-30) — live, but not machine-readable to an unattended client.
-  humanURL: https://manara.qnl.qa/hbku
-  baseURL: null
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-chat-api
+  name: Hamad Bin Khalifa University Chat API
+  description: The Chat API from Hamad Bin Khalifa University — 1 operation(s) for chat.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
   tags:
-  - Research Data
-  - Repository
-  - Open Access
-  - Figshare
+  - Chat
   properties:
-  - type: Website
-    url: https://manara.qnl.qa/hbku
+  - type: OpenAPI
+    url: openapi/hbku-chat-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-images-api
+  name: Hamad Bin Khalifa University Images API
+  description: The Images API from Hamad Bin Khalifa University — 1 operation(s) for images.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
+  tags:
+  - Images
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-images-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-models-api
+  name: Hamad Bin Khalifa University Models API
+  description: The Models API from Hamad Bin Khalifa University — 1 operation(s) for models.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
+  tags:
+  - Models
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-models-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-moderations-api
+  name: Hamad Bin Khalifa University Moderations API
+  description: The Moderations API from Hamad Bin Khalifa University — 1 operation(s) for moderations.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
+  tags:
+  - Moderations
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-moderations-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-poems-api
+  name: Hamad Bin Khalifa University Poems API
+  description: The Poems API from Hamad Bin Khalifa University — 1 operation(s) for poems.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
+  tags:
+  - Poems
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-poems-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-tokens-api
+  name: Hamad Bin Khalifa University Tokens API
+  description: The Tokens API from Hamad Bin Khalifa University — 1 operation(s) for tokens.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
+  tags:
+  - Tokens
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-tokens-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-translations-api
+  name: Hamad Bin Khalifa University Translations API
+  description: >-
+    The Translations API from Hamad Bin Khalifa University — 1 operation(s) for translations.
+  humanURL: https://api.fanar.qa/docs
+  baseURL: https://api.fanar.qa
+  tags:
+  - Translations
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-translations-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
 common:
   - type: Website
     url: https://www.hbku.edu.qa/en/home
