@@ -57,6 +57,22 @@ tags:
   - Qatar
   - Middle East
   - Artificial Intelligence
+  - LLM
+  - Natural Language Processing
+  - Arabic
+  - Research Computing
+  - Research Data
+  - Course Catalog
+  - Repository
+  - Open Access
+tags_raw:
+  - University
+  - Higher Education
+  - Education
+  - Research
+  - Qatar
+  - Middle East
+  - Artificial Intelligence
   - Large Language Models
   - Natural Language Processing
   - Arabic
@@ -298,6 +314,8 @@ apis:
   humanURL: https://api.fanar.qa/docs
   baseURL: https://api.fanar.qa
   tags:
+  - Image
+  tags_raw:
   - Images
   properties:
   - type: OpenAPI
@@ -539,6 +557,8 @@ apis:
   humanURL: https://api.fanar.qa/docs
   baseURL: https://api.fanar.qa
   tags:
+  - Translation
+  tags_raw:
   - Translations
   properties:
   - type: OpenAPI
