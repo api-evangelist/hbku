@@ -1,0 +1,151 @@
+openapi: 3.2.0
+info:
+  title: Farasa Web Arabic NLP API
+  summary: Arabic natural-language processing web API operated by the Arabic Language Technologies group at Qatar Computing Research Institute (QCRI), Hamad Bin Khalifa University.
+  description: Farasa is the Arabic text-processing toolkit built by the Arabic Language Technologies group at the Qatar Computing Research Institute (QCRI), a research institute of Hamad Bin Khalifa University.
+  version: '1.0'
+  contact:
+    name: Farasa Support — Arabic Language Technologies, QCRI, Hamad Bin Khalifa University
+    email: support@farasa.qcri.org
+    url: https://farasa.qcri.org/
+  x-institution: Hamad Bin Khalifa University
+servers:
+- url: https://farasa.qcri.org/webapi
+  description: Farasa Web API, confirmed live 2026-08-30 (POST with a bad key returns 400 "invalid api key").
+tags:
+- name: Arabic NLP
+  description: Arabic language processing modules.
+paths:
+  /segmentation/:
+    post:
+      tags:
+      - Arabic NLP
+      summary: Segment Arabic text into clitics and stems
+      operationId: farasaSegmentation
+      requestBody:
+        $ref: '#/components/requestBodies/FarasaRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FarasaResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /lemmatization/:
+    post:
+      tags:
+      - Arabic NLP
+      summary: Reduce Arabic tokens to their lemmas
+      operationId: farasaLemmatization
+      requestBody:
+        $ref: '#/components/requestBodies/FarasaRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FarasaResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /pos/:
+    post:
+      tags:
+      - Arabic NLP
+      summary: Part-of-speech tag Arabic text
+      operationId: farasaPos
+      requestBody:
+        $ref: '#/components/requestBodies/FarasaRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FarasaResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /ner/:
+    post:
+      tags:
+      - Arabic NLP
+      summary: Recognize named entities in Arabic text
+      operationId: farasaNer
+      requestBody:
+        $ref: '#/components/requestBodies/FarasaRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FarasaResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /diacritize/:
+    post:
+      tags:
+      - Arabic NLP
+      summary: Restore diacritics on Arabic text
+      operationId: farasaDiacritize
+      requestBody:
+        $ref: '#/components/requestBodies/FarasaRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FarasaResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /spellcheck/:
+    post:
+      tags:
+      - Arabic NLP
+      summary: Spell-check Arabic text
+      operationId: farasaSpellcheck
+      requestBody:
+        $ref: '#/components/requestBodies/FarasaRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/FarasaResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  schemas:
+    FarasaRequest:
+      type: object
+      required:
+      - text
+      - api_key
+      properties:
+        text:
+          type: string
+          description: The Arabic text to process, UTF-8 encoded.
+          examples:
+          - يُشار إلى أن اللغة العربية
+        api_key:
+          type: string
+          description: API key issued on registration at https://farasa.qcri.org.
+  requestBodies:
+    FarasaRequest:
+      required: true
+      description: The api_key travels in the request body, not in a header. Both application/json and application/x-www-form-urlencoded are accepted; any other content type is rejected with 400 "Unsupported content_type".
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FarasaRequest'
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/FarasaRequest'
+  responses:
+    BadRequest:
+      description: 'Rejected request. Observed forms, both returned as HTTP 400 with a text/plain body: "invalid api key. please register at: https://farasa.qcri.org" and "Unsupported content_type, use application/json or application/x-www-form-urlencoded".'
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            invalidKey:
+              value: 'invalid api key. please register at: https://farasa.qcri.org'
+            badContentType:
+              value: Unsupported content_type, use application/json or application/x-www-form-urlencoded
+    FarasaResult:
+      description: Processed Arabic text. The exact payload shape is NOT documented by the provider and was not observed here — a registered api_key is required to reach a 200 — so no schema is asserted.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Provider-defined JSON result. Shape unverified; see x-provenance.
+x-operator: institution
+x-provenance:
+  generated: '2026-08-30'
+  method: derived
+  source:
+  - https://farasa.qcri.org/lemmatization/
+  - https://farasa.qcri.org/segmentation/
+  - https://alt.qcri.org/farasa/
+  evidence: 'Endpoint list confirmed by unauthenticated POST probes on 2026-08-30 — segmentation, lemmatization, pos, ner, diacritize and spellcheck each returned HTTP 400 "invalid api key. please register at: https://farasa.qcri.org", while sibling paths (constituency, dependency, tts) returned 404. Request parameters taken verbatim from the provider''s own published code samples.'

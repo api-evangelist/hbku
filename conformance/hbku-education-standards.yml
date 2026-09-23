@@ -1,0 +1,92 @@
+# authorship: written by API Evangelist tooling from live protocol probes, 2026-08-30.
+# `method: probed` below is the pipeline vocabulary; x-method is the manifest vocabulary.
+x-method: derived
+generated: '2026-08-30'
+method: probed
+provider: Hamad Bin Khalifa University
+providerId: hbku
+regime: education
+description: >-
+  Conformance of Hamad Bin Khalifa University's INSTITUTION-OPERATED contracts against the Kin Score
+  education regime's domain standards. Read from the contracts themselves, never from prose. The
+  finding is a clean negative and is recorded as one: HBKU's two real APIs are an Arabic LLM
+  platform and an Arabic NLP toolkit, and neither is an academic-interoperability surface, so none
+  of the twelve education standards appears in either. Nothing is claimed to fill a slot.
+contracts_examined:
+- openapi/_original/hbku-fanar-api-openapi.json
+- openapi/hbku-farasa-api-openapi.yml
+- https://elmi.hbku.edu.qa/ws/oai (live protocol probe)
+- https://catalog.hbku.edu.qa/course-search/api/ (live probe)
+standards:
+- standard: scim
+  conformant: false
+  evidence: No securityScheme, path or schema in either contract references SCIM provisioning.
+- standard: lti
+  conformant: false
+  evidence: >-
+    No LTI launch, deep-linking or platform/tool registration surface. The only textual hits for
+    "lti" in the Fanar contract are inside "multipart/form-data" and were verified as substring
+    false positives.
+- standard: oneroster
+  conformant: false
+  evidence: No rostering endpoints; HBKU exposes no student information surface publicly.
+- standard: ed-fi
+  conformant: false
+  evidence: Not referenced. Ed-Fi is a K-12 data standard and is out of scope for this institution.
+- standard: caliper
+  conformant: false
+  evidence: No learning-analytics event endpoint in either contract.
+- standard: qti
+  conformant: false
+  evidence: No assessment or item-bank surface.
+- standard: oai-pmh
+  conformant: true
+  endpoint: https://elmi.hbku.edu.qa/ws/oai
+  evidence: >-
+    Confirmed by the protocol's own handshake on 2026-08-30, not by link presence. GET
+    ?verb=Identify returns HTTP 200 and a valid OAI-PMH 2.0 envelope declaring
+    baseURL https://elmi.hbku.edu.qa/ws/oai, protocolVersion 2.0, granularity
+    YYYY-MM-DDThh:mm:ssZ, earliestDatestamp 2024-07-18T10:33:02Z and adminEmail
+    elmi@hbku.edu.qa — an HBKU address. ?verb=ListMetadataFormats offers seven prefixes
+    (oai_dc, qdc, mods, mods_swepub, nl_didl, xmetadiss, uketd_dc) and ?verb=ListSets offers
+    persons:all, publications:all, publications:withFiles and per-year publication sets.
+    ?verb=ListRecords&metadataPrefix=oai_dc&set=persons:all returned 96KB of records
+    unauthenticated.
+  caveat: >-
+    The software behind it is Elsevier Pure (repositoryName "Pure OAI Repository"), so the
+    x-operator on the apis[] entry is tenant. The conformance is still recorded because
+    OAI-PMH is an open protocol served on HBKU's own registrable domain under an HBKU admin
+    contact, and because it is measured from a live standards response rather than from a
+    vendor's proprietary contract.
+- standard: shibboleth
+  conformant: false
+  evidence: >-
+    idp.hbku.edu.qa does not resolve; sso.hbku.edu.qa serves a certificate that does not match the
+    hostname. No Shibboleth IdP metadata was reachable.
+- standard: saml
+  conformant: false
+  evidence: >-
+    technical.edugain.org lists 92 federations and none is Qatari; an entity search returns no
+    hbku.edu.qa or qcri.org entity (checked 2026-08-30). HBKU is not in eduGAIN.
+- standard: orcid
+  conformant: false
+  evidence: >-
+    ORCID identifiers appear against HBKU authors inside third-party repository records, but not
+    in any interface HBKU serves. The one place it could have surfaced — the persons:all set on
+    HBKU's own OAI-PMH endpoint — carries no orcid element in oai_dc (checked 2026-08-30,
+    0 matches across 96KB of records). Not claimed.
+- standard: datacite
+  conformant: false
+  evidence: Same as ORCID — DOI minting for HBKU deposits is the repository operator's function.
+- standard: crossref
+  conformant: false
+  evidence: Not referenced in any institution-operated contract.
+summary:
+  standards_examined: 12
+  conformant: 1
+  conformant_standards: [oai-pmh]
+  note: >-
+    One hit, and it is a real one — a live, unauthenticated, fully answering OAI-PMH 2.0 endpoint
+    on HBKU's own host. The other eleven are clean negatives: HBKU's engineered footprint sits in
+    AI infrastructure (Fanar, Farasa) rather than in academic interoperability, and none of the
+    learning, rostering, assessment or federation standards has any surface here to conform to.

@@ -4,32 +4,64 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Hamad Bin Khalifa University
 providerId: hbku
 created: '2026-06-03'
-modified: '2026-06-03'
+modified: '2026-08-30'
+generated: '2026-08-30'
+method: derived
+source: openapi/_original/hbku-fanar-api-openapi.json
 reconciled: false
 tags:
 - Education
 - Higher Education
 - University
 - Rate Limiting
+- Fanar
 description: >-
-  Hamad Bin Khalifa University does not publish a unified public rate-limit table across its APIs. Open
-  metadata and harvesting endpoints (OAI-PMH, IIIF, library) may throttle large-scale
-  or automated harvesting; clients should harvest politely, honor Retry-After, and
-  contact the relevant service for bulk access.
-notes: Confirm per-service limits with each API's documentation; harvest responsibly.
-sources:
-- https://raw.githubusercontent.com/api-evangelist/hbku/refs/heads/main/apis.yml
+  Hamad Bin Khalifa University publishes a real, per-model rate-limit table for exactly one API: the
+  Fanar API operated by the Qatar Computing Research Institute. The table and the response-header
+  contract below are transcribed from the provider's own OpenAPI info.description — they are the
+  university's published limits, not an estimate. The Farasa Web API publishes no limit; the earlier
+  version of this file described limits for interfaces HBKU does not operate.
+apis:
+- api: Fanar API
+  x-operator: institution
+  baseURL: https://api.fanar.qa
+  throttleStatus: 429
+  limits:
+  - models: [Fanar, Fanar-S-1-7B, Fanar-C-1-8.7B, Fanar-C-2-27B, Fanar-Sadiq, Fanar-Sadiq-2, Fanar-Guard-2, Fanar-Diwan]
+    limit: 50
+    window: minute
+  - models: [Fanar-Sadiq-TTS-1, Fanar-Oryx-IVU-2, Fanar-Aura-TTS-2, Fanar-Aura-STT-1, Fanar-Oryx-IG-2, Fanar-Shaheen-MT-1]
+    limit: 20
+    window: day
+  - models: [Fanar-Aura-STT-LF-1]
+    limit: 10
+    window: day
+  headers:
+  - header: x-ratelimit-limit
+    description: Requests allowed per window.
+  - header: x-ratelimit-remaining
+    description: Requests still available in the current window.
+  - header: x-ratelimit-reset
+    description: Seconds until a request slot frees up.
+  - header: ratelimit-policy
+    description: >-
+      The quota and its window in seconds, as limit;w=seconds — 100;w=86400 means 100 requests per
+      day. Read this rather than x-ratelimit-limit when the window matters.
+  - header: retry-after
+    description: >-
+      Seconds to wait before retrying, sent only on a 429. Counts down to a free slot when the
+      caller's own quota ran out; carries the upstream service's hint when something else throttled.
+  notes: >-
+    Rate-limit headers are omitted for API keys with unlimited quota. Higher or tailored limits are
+    negotiated by contacting the provider.
+- api: Farasa Web API
+  x-operator: institution
+  baseURL: https://farasa.qcri.org/webapi
+  limits: []
+  notes: No rate limit is published for Farasa, and none could be measured without a registered api_key.
 responseCodes:
-  throttled: 429
-limits:
-- name: Default
-  scope: client
-  metric: requests-per-minute
-  limit: see service documentation
-  notes: No published global limit; large harvests may be rate-limited.
-policies:
-- name: Backoff Strategy
-  description: Exponential backoff with jitter; honor Retry-After; harvest during off-peak hours.
-maintainers:
-- FN: Kin Lane
-  email: kin@apievangelist.com
+- code: 429
+  meaning: Rate limit reached or quota exceeded (Fanar; error codes rate_limit_reached, exceeded_quota)
+sources:
+- https://api.fanar.qa/openapi.json
+- https://api.fanar.qa/docs

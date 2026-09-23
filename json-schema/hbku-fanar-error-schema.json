@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/hbku/main/json-schema/hbku-fanar-error-schema.json",
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "derived",
+    "source": "openapi/_original/hbku-fanar-api-openapi.json#/$defs/Error",
+    "note": "Extracted verbatim from the provider-published Fanar OpenAPI 3.1.0; $ref targets rewritten to local $defs. No properties added."
+  },
+  "properties": {
+    "code": {
+      "$ref": "#/$defs/ErrorCode"
+    },
+    "message": {
+      "type": "string",
+      "title": "Message",
+      "default": "Internal server error"
+    },
+    "status": {
+      "$ref": "#/$defs/ErrorStatus",
+      "default": 500
+    },
+    "param": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Param"
+    },
+    "type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ErrorContentFilterType"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "title": "Error",
+  "$defs": {
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "content_filter",
+        "invalid_authentication",
+        "invalid_authorization",
+        "rate_limit_reached",
+        "exceeded_quota",
+        "internal_server_error",
+        "overloaded",
+        "timeout",
+        "too_large",
+        "unprocessable",
+        "conflict",
+        "Not found",
+        "no_longer_supported",
+        "client_closed_request"
+      ],
+      "title": "ErrorCode"
+    },
+    "ErrorStatus": {
+      "type": "integer",
+      "enum": [
+        400,
+        401,
+        403,
+        429,
+        429,
+        500,
+        503,
+        504,
+        413,
+        422,
+        409,
+        404,
+        410,
+        499
+      ],
+      "title": "ErrorStatus"
+    },
+    "ErrorContentFilterType": {
+      "type": "string",
+      "enum": [
+        "safety",
+        "blocklist",
+        "incomplete"
+      ],
+      "title": "ErrorContentFilterType"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "probed",
+    "source": "https://farasa.qcri.org/webapi/lemmatization/",
+    "note": "Live unauthenticated probe run 2026-08-30, using the request shape published in QCRI's own code samples. Response body captured verbatim."
+  },
+  "operation": "POST /webapi/lemmatization/",
+  "description": "Farasa Web API called without a registered api_key. Confirms the endpoint is live and that authentication is carried in the request body, not a header.",
+  "request": {
+    "method": "POST",
+    "url": "https://farasa.qcri.org/webapi/lemmatization/",
+    "headers": { "Content-Type": "application/json" },
+    "body": { "text": "مرحبا بالعالم", "api_key": "" }
+  },
+  "response": {
+    "status": 400,
+    "headers": { "content-type": "text/html; charset=utf-8" },
+    "body": "invalid api key. please register at: https://farasa.qcri.org"
+  }
+}

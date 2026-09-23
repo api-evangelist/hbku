@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/hbku/main/json-schema/hbku-fanar-models-response-schema.json",
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "derived",
+    "source": "openapi/_original/hbku-fanar-api-openapi.json#/$defs/ModelsResponse",
+    "note": "Extracted verbatim from the provider-published Fanar OpenAPI 3.1.0; $ref targets rewritten to local $defs. No properties added."
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "A unique identifier for the models."
+    },
+    "models": {
+      "items": {
+        "$ref": "#/$defs/AvailableModel"
+      },
+      "type": "array",
+      "title": "Models",
+      "description": "The available models."
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "models"
+  ],
+  "title": "ModelsResponse",
+  "$defs": {
+    "AvailableModel": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "A unique identifier for the model."
+        },
+        "object": {
+          "$ref": "#/$defs/ModelObject",
+          "description": "The type of object."
+        },
+        "created": {
+          "type": "integer",
+          "title": "Created",
+          "description": "The creation timestamp of the model."
+        },
+        "owned_by": {
+          "type": "string",
+          "title": "Owned By",
+          "description": "The owner of the model."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "object",
+        "created",
+        "owned_by"
+      ],
+      "title": "AvailableModel"
+    },
+    "ModelObject": {
+      "type": "string",
+      "enum": [
+        "model"
+      ],
+      "title": "ModelObject"
+    }
+  }
+}

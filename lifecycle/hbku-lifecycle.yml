@@ -1,0 +1,40 @@
+generated: '2026-08-30'
+method: searched
+provider: Hamad Bin Khalifa University
+providerId: hbku
+description: >-
+  Versioning and change-communication posture for the APIs Hamad Bin Khalifa University operates.
+apis:
+- api: Fanar API
+  x-operator: institution
+  contract_version: '1.0.0'
+  path_version: /v1
+  openapi_version: '3.1.0'
+  contract_url: https://api.fanar.qa/openapi.json
+  changelog:
+    url: https://fanar.qa/en/2-0-release-notes
+    name: Fanar 2.0 Release Notes
+    status: 200
+    checked: '2026-08-30'
+  deprecation:
+    declared: true
+    evidence: >-
+      The contract declares a 410 response with error code no_longer_supported, so retirement is
+      part of the published error vocabulary rather than an undocumented event.
+  notes: >-
+    A platform release line (Fanar 1.0 / Fanar 2.0) is published separately from the contract's own
+    info.version, which still reads 1.0.0. Model generations are versioned in the model identifiers
+    (Fanar-C-1-8.7B vs Fanar-C-2-27B, Fanar-Sadiq vs Fanar-Sadiq-2).
+- api: Farasa Web API
+  x-operator: institution
+  contract_version: null
+  changelog:
+    url: null
+    status: none
+  deprecation:
+    declared: false
+  notes: >-
+    No version is published for Farasa and no changelog exists. Two base hosts are in circulation
+    for the same toolkit — farasa.qcri.org/webapi/<module>/ (the one the module pages document and
+    the one probed live) and farasa-api.qcri.org/msa/webapi/<endpoint> (referenced in older
+    third-party samples) — with no statement about which supersedes the other.

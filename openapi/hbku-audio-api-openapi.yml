@@ -1,0 +1,1376 @@
+openapi: 3.2.0
+info:
+  title: Fanar Audio API
+  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+  termsOfService: https://fanar.qa/terms-of-services
+  contact:
+    name: Fanar Support
+    url: https://fanar.qa/
+    email: support@fanar.qa
+  version: 1.0.0
+  x-logo:
+    url: /static/white-logo.svg
+    alt: logo
+security:
+- Bearer: []
+tags:
+- name: Audio
+paths:
+  /v1/audio/speech:
+    post:
+      tags:
+      - Audio
+      summary: Create Speech
+      description: 'This endpoint is compatible with the OpenAI library.
+
+        Generates audio from the input text.'
+      operationId: create_speech_v1_audio_speech_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextToSpeechRequest'
+        required: true
+      responses:
+        '200':
+          description: The audio file content or error details.
+          headers:
+            X-Id:
+              description: A unique identifier for the text-to-speech.
+              schema:
+                type: string
+                format: uuid
+            X-Revised-Input:
+              description: The processed input text after Quran validation and tagging. This header is only present when using the Fanar-Sadiq-TTS model. The validator identifies Quranic verses in the input and wraps them with XML-style tags (e.g., `<quran_start>`, `<quran_end>`) for proper handling during text-to-speech processing. It may also apply corrections such as diacritical marks normalization or verse formatting. If no Quranic content was detected or no modifications were needed, this header will be absent.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema: {}
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: The content was filtered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: content_filter
+                  message: The content was filtered
+                  status: 400
+                  param: prompt
+                  type: safety
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+      security:
+      - Bearer: []
+      x-codeSamples:
+      - lang: Curl
+        label: cURL
+        source: "curl -X POST \"https://api.fanar.qa/v1/audio/speech\" \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer YOUR_API_KEY\" \\\n--output greeting.mp3 \\\n-d '{\n  \"model\": \"Fanar-Aura-TTS-2\",\n  \"input\": \"Hello! I hope you are having a wonderful day.\",\n  \"voice\": \"Amelia\",\n  \"response_format\": \"mp3\"\n}'\n"
+      - lang: Python
+        label: Python - OpenAI
+        source: "# Text-to-Speech requires additional authorization and is not allowed by default.\n\nfrom openai import OpenAI\n\nclient = OpenAI(\n    base_url=\"https://api.fanar.qa/v1\",\n    api_key=\"YOUR_API_KEY\"\n)\n\nresponse = client.audio.speech.create(\n    model=\"Fanar-Aura-TTS-2\",\n    input=\"Hello! I hope you are having a wonderful day.\",\n    voice=\"Amelia\",\n    response_format=\"mp3\",\n)\n\nwith open(\"greeting.mp3\", \"wb\") as f:\n    f.write(response.read())\n"
+      - lang: Python - requests
+        label: Python - requests
+        source: "# Text-to-Speech requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/speech\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\ndata = {\n    \"model\": \"Fanar-Aura-TTS-2\",\n    \"input\": \"Hello! I hope you are having a wonderful day.\",\n    \"voice\": \"Amelia\",\n    \"response_format\": \"mp3\"\n}\n\nresponse = requests.post(url, headers=headers, json=data)\n\nwith open(\"greeting.mp3\", \"wb\") as f:\n    f.write(response.content)\n"
+      - lang: Python - requests for Quranic text
+        label: Python - requests for Quranic text
+        source: "# Text-to-Speech requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/speech\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\ndata = {\n    \"model\": \"Fanar-Sadiq-TTS-1\",\n    \"input\": \"Quranic text goes here\",\n    \"voice\": \"Amelia\",\n    \"quran_reciter\": \"abdul-basit\",\n    \"response_format\": \"mp3\"\n}\n\nresponse = requests.post(url, headers=headers, json=data)\n\nrevised_input = response.headers.get('X-Revised-Input')\nif revised_input:\n    from urllib.parse import unquote\n    print(\"Revised Input:\", unquote(revised_input))\n\nwith open(\"quranic_speech.mp3\", \"wb\") as f:\n    f.write(response.content)\n"
+      - lang: cURL - streaming
+        label: cURL - streaming
+        source: "# Pass \"stream\": true to receive audio bytes progressively as they are\n# synthesized. The response Content-Type is identical to the non-streaming\n# case (audio/wav or audio/mpeg) but uses chunked transfer encoding, so\n# `--output greeting.mp3` keeps working. The first byte arrives much\n# sooner for longer inputs.\n\ncurl -X POST \"https://api.fanar.qa/v1/audio/speech\" \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer YOUR_API_KEY\" \\\n--no-buffer \\\n--output greeting.mp3 \\\n-d '{\n  \"model\": \"Fanar-Aura-TTS-2\",\n  \"input\": \"Hello! I hope you are having a wonderful day.\",\n  \"voice\": \"Amelia\",\n  \"response_format\": \"mp3\",\n  \"stream\": true\n}'\n"
+      - lang: Python - OpenAI streaming
+        label: Python - OpenAI streaming
+        source: "# Text-to-Speech requires additional authorization and is not allowed by default.\n# Use the OpenAI SDK's with_streaming_response helper to play audio as it\n# arrives. `stream: true` is passed via `extra_body` since it's a\n# Fanar-specific extension to the OpenAI-compatible schema.\n\nfrom openai import OpenAI\n\nclient = OpenAI(\n    base_url=\"https://api.fanar.qa/v1\",\n    api_key=\"YOUR_API_KEY\"\n)\n\nwith client.audio.speech.with_streaming_response.create(\n    model=\"Fanar-Aura-TTS-2\",\n    input=\"Hello! I hope you are having a wonderful day.\",\n    voice=\"Amelia\",\n    response_format=\"wav\",\n    extra_body={\"stream\": True},\n) as response:\n    response.stream_to_file(\"greeting.wav\")\n"
+      - lang: Python - requests streaming
+        label: Python - requests streaming
+        source: "# Text-to-Speech requires additional authorization and is not allowed by default.\n# Pass stream=True to requests so it doesn't pre-buffer the body, then\n# iterate over chunks. The first chunk arrives within ~1 s even for long\n# inputs that would otherwise wait many seconds for the full synthesis.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/speech\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\ndata = {\n    \"model\": \"Fanar-Aura-TTS-2\",\n    \"input\": \"Hello! I hope you are having a wonderful day.\",\n    \"voice\": \"Amelia\",\n    \"response_format\": \"wav\",\n    \"stream\": True\n}\n\nwith requests.post(url, headers=headers, json=data, stream=True) as r:\n    r.raise_for_status()\n    with open(\"greeting.wav\", \"wb\") as f:\n        for chunk in r.iter_content(chunk_size=8192):\n            if chunk:\n                f.write(chunk)"
+  /v1/audio/transcriptions:
+    post:
+      tags:
+      - Audio
+      summary: Create Transcription
+      description: 'This endpoint is compatible with the OpenAI library.
+
+        Transcribes audio into the input language.'
+      operationId: create_transcription_v1_audio_transcriptions_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_transcription_v1_audio_transcriptions_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/SpeechToTextResponseWithText'
+                - $ref: '#/components/schemas/SpeechToTextResponseWithSRT'
+                - $ref: '#/components/schemas/SpeechToTextResponseWithJson-Output'
+                title: Response Create Transcription V1 Audio Transcriptions Post
+        '400':
+          description: The content was filtered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: content_filter
+                  message: The content was filtered
+                  status: 400
+                  param: prompt
+                  type: safety
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+      security:
+      - Bearer: []
+      x-codeSamples:
+      - lang: Curl
+        label: cURL Example
+        source: "curl -X POST \"https://api.fanar.qa/v1/audio/transcriptions\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: multipart/form-data\" \\\n  -F \"file=@sample.wav\" \\\n  -F \"model=Fanar-Aura-STT-1\"\n"
+      - lang: Python
+        label: Python - OpenAI
+        source: "# Audio Transcriptions requires additional authorization and is not allowed by default.\n\nfrom openai import OpenAI\n\nclient = OpenAI(\n    base_url=\"https://api.fanar.qa/v1\",\n    api_key=\"YOUR_API_KEY\"\n)\n\nwith open(\"sample.wav\", \"rb\") as f:\n    response = client.audio.transcriptions.create(\n        file=f,\n        model=\"Fanar-Aura-STT-1\"\n    )\n\nprint(response.text)\n"
+      - lang: Python - requests
+        label: Python - requests
+        source: "# Audio Transcriptions requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/transcriptions\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\"\n}\nfiles = {\n    \"file\": open(\"sample.wav\", \"rb\")\n}\ndata = {\n    \"model\": \"Fanar-Aura-STT-1\"\n}\n\nresponse = requests.post(url, headers=headers, files=files, data=data)\n\nprint(response.json().get(\"text\"))\n"
+      - lang: Python - requests with longform audio (JSON format)
+        label: Python - requests with longform audio (JSON format)
+        source: "# Audio Transcriptions requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/transcriptions\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\"\n}\nfiles = {\n    \"file\": open(\"sample.wav\", \"rb\")\n}\ndata = {\n    \"model\": \"Fanar-Aura-STT-LF-1\",\n    \"format\": \"json\"\n}\n\nresponse = requests.post(url, headers=headers, files=files, data=data)\n\nprint(response.json().get(\"json\"))"
+  /v1/audio/voices:
+    get:
+      tags:
+      - Audio
+      summary: List Voices
+      description: 'Lists all available text-to-speech voices.
+
+        The list will include all built-in (public) voices by default. If your API key is authorized to create personalized voices, they will be included in the list and labeled as type: "personal".'
+      operationId: list_voices_v1_audio_voices_get
+      responses:
+        '200':
+          description: A list of available voices.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceResponse'
+              example:
+                voices:
+                - name: Amelia
+                  name_ar: أميليا
+                  gender: Female
+                  accent: British
+                  languages:
+                  - en
+                  type: public
+                  emotion: false
+                - name: Hamad
+                  name_ar: حمد
+                  gender: Male
+                  accent: Gulf
+                  languages:
+                  - ar
+                  type: public
+                  emotion: false
+                - name: MyVoice
+                  languages: []
+                  type: personal
+                  emotion: false
+        '400':
+          description: The content was filtered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: content_filter
+                  message: The content was filtered
+                  status: 400
+                  param: prompt
+                  type: safety
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+      security:
+      - Bearer: []
+      x-codeSamples:
+      - lang: Curl
+        label: cURL
+        source: 'curl -X GET "https://api.fanar.qa/v1/audio/voices" \
+
+          -H "Content-Type: application/json" \
+
+          -H "Authorization: Bearer YOUR_API_KEY"
+
+          '
+      - lang: Python
+        label: Python - requests
+        source: "# Voice personalization requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/voices\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\nresponse = requests.get(url, headers=headers)\nvoices = response.json()\nprint(voices)"
+    post:
+      tags:
+      - Audio
+      summary: Create Voice
+      description: 'Creates a personalized voice that can be used to generate speech.
+
+        The voice name must be unique among your own personalized voices. Names that match a built-in (public) voice are allowed — public voices and your personalized voices live in separate namespaces. When you request a voice name that exists in both, your personalized voice takes precedence at synthesis time in POST /v1/audio/speech.
+
+        This endpoint requires additional authorization and is not allowed by default. Please contact support@fanar.qa.'
+      operationId: create_voice_v1_audio_voices_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_voice_v1_audio_voices_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: The content was filtered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: content_filter
+                  message: The content was filtered
+                  status: 400
+                  param: prompt
+                  type: safety
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+      security:
+      - Bearer: []
+      x-codeSamples:
+      - lang: Curl
+        label: cURL
+        source: 'curl -X POST "https://api.fanar.qa/v1/audio/voices" \
+
+          -H "Authorization: Bearer YOUR_API_KEY" \
+
+          -F "audio=@custom-voice-sample.wav;type=audio/wav" \
+
+          -F "name=CustomVoice1" \
+
+          -F "transcript=This is a sample transcription."
+
+          '
+      - lang: Python
+        label: Python - requests
+        source: "# Voice personalization requires additional authorization and is not allowed by default.\n\nimport requests\nfrom pydub import AudioSegment\nfrom io import BytesIO\n\nurl = \"https://api.fanar.qa/v1/audio/voices\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\"\n}\n\nsample_audio_path = \"custom-voice-sample.wav\"\naudio = AudioSegment.from_wav(sample_audio_path)\nif audio.frame_rate != 24000:\n    audio = audio.set_frame_rate(24000)\n\naudio_buffer = BytesIO()\naudio.export(audio_buffer, format='wav')\naudio_buffer.seek(0)  # Reset buffer position to start\n\nfiles = {'audio': (os.path.basename(sample_audio_path), audio_buffer, 'audio/wav')}\n\ndata = {\n    \"name\": \"CustomVoice1\",\n    \"transcript\": \"This is a sample transcription.\"\n}\n\nrequests.post(url, headers=headers, files=files, data=data)\n"
+  /v1/audio/voices/{name}:
+    delete:
+      tags:
+      - Audio
+      summary: Delete Voice
+      description: 'Deletes a personalized voice by name.
+
+        This endpoint requires additional authorization and is not allowed by default. Please contact support@fanar.qa.'
+      operationId: delete_voice_v1_audio_voices__name__delete
+      security:
+      - Bearer: []
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: The content was filtered
+          content:
+            application/json:
+              example:
+                error:
+                  code: content_filter
+                  message: The content was filtered
+                  status: 400
+                  param: prompt
+                  type: safety
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+              schema:
+                $ref: '#/components/schemas/Error'
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codeSamples:
+      - lang: Curl
+        label: cURL
+        source: 'curl -X DELETE "https://api.fanar.qa/v1/audio/voices/{name}" \
+
+          -H "Content-Type: application/json" \
+
+          -H "Authorization: Bearer YOUR_API_KEY"
+
+          '
+      - lang: Python
+        label: Python - requests
+        source: "# Voice personalization requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/voices/{name}\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\nrequests.delete(url, headers=headers)\n"
+components:
+  schemas:
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    SpeechToTextResponseWithSRT:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        srt:
+          type: string
+          title: Srt
+          description: The transcribed text in SRT format.
+      type: object
+      required:
+      - id
+      - srt
+      title: SpeechToTextResponseWithSRT
+    QuranReciters:
+      type: string
+      enum:
+      - abdul-basit
+      - maher-al-muaiqly
+      - mahmoud-al-husary
+      title: QuranReciters
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    SpeechToTextResponseWithJson-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        json:
+          $ref: '#/components/schemas/SpeechToTextResponseJson'
+          description: The transcribed text in JSON format.
+      type: object
+      required:
+      - id
+      - json
+      title: SpeechToTextResponseWithJson
+    SpeechToTextResponseWithText:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text.
+      type: object
+      required:
+      - id
+      - text
+      title: SpeechToTextResponseWithText
+    VoiceResponse:
+      properties:
+        voices:
+          items:
+            $ref: '#/components/schemas/Voice'
+          type: array
+          title: Voices
+          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
+      type: object
+      required:
+      - voices
+      title: VoiceResponse
+      example:
+        voices:
+        - accent: British
+          emotion: false
+          gender: Female
+          languages:
+          - en
+          name: Amelia
+          name_ar: أميليا
+          type: public
+        - accent: Gulf
+          emotion: false
+          gender: Male
+          languages:
+          - ar
+          name: Hamad
+          name_ar: حمد
+          type: public
+        - emotion: false
+          languages: []
+          name: MyVoice
+          type: personal
+    STTSegement:
+      properties:
+        speaker:
+          type: string
+          title: Speaker
+          description: The speaker label for the segment.
+        start_time:
+          type: number
+          title: Start Time
+          description: The start time of the segment in seconds.
+        end_time:
+          type: number
+          title: End Time
+          description: The end time of the segment in seconds.
+        duration:
+          type: number
+          title: Duration
+          description: The duration of the segment in seconds.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text segment.
+      type: object
+      required:
+      - speaker
+      - start_time
+      - end_time
+      - duration
+      - text
+      title: STTSegement
+    SpeechToTextResponseJson:
+      properties:
+        segments:
+          items:
+            $ref: '#/components/schemas/STTSegement'
+          type: array
+          title: Segments
+          description: The list of segments for the transcribed text.
+      type: object
+      required:
+      - segments
+      title: SpeechToTextResponseJson
+    TTSModels:
+      type: string
+      enum:
+      - Fanar-Aura-TTS-2
+      - Fanar-Sadiq-TTS-1
+      title: TTSModels
+    TTSResponseFormat:
+      type: string
+      enum:
+      - mp3
+      - wav
+      title: TTSResponseFormat
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    STTModels:
+      type: string
+      enum:
+      - Fanar-Aura-STT-1
+      - Fanar-Aura-STT-LF-1
+      title: STTModels
+    Body_create_transcription_v1_audio_transcriptions_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: The audio blob to transcribe.
+        model:
+          $ref: '#/components/schemas/STTModels'
+          description: 'The model to use for the speech-to-text.
+
+            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
+
+            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
+        format:
+          $ref: '#/components/schemas/STTFormat'
+          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
+
+            - `text`: Plain text format.
+
+            - `srt`: SubRip Subtitle format.
+
+            - `json`: JSON format with detailed transcription data.'
+          default: text
+      type: object
+      required:
+      - file
+      - model
+      title: Body_create_transcription_v1_audio_transcriptions_post
+    Voice:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The English name of the voice. This is the identifier passed to the TTS endpoint.
+          examples:
+          - Amelia
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+          description: The Arabic display name of the voice, when available.
+          examples:
+          - أميليا
+        gender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gender
+          description: Gender label of the voice (e.g., 'Male', 'Female').
+          examples:
+          - Female
+        accent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Accent
+          description: Accent label of the voice (e.g., 'British', 'Gulf', 'American', 'Standard').
+          examples:
+          - British
+        languages:
+          items:
+            type: string
+          type: array
+          title: Languages
+          description: Supported language codes (e.g., 'en', 'ar').
+          examples:
+          - - en
+        type:
+          type: string
+          enum:
+          - public
+          - personal
+          title: Type
+          description: Whether this is a built-in public voice or a personalized voice registered for this API key.
+          examples:
+          - public
+        emotion:
+          type: boolean
+          title: Emotion
+          description: 'Whether this voice supports emotional speech synthesis. When true, you may set `with_emotion: true` on POST /v1/audio/speech to enable emotional rendering.'
+          default: false
+          examples:
+          - true
+      type: object
+      required:
+      - name
+      - type
+      title: Voice
+      example:
+        accent: British
+        emotion: false
+        gender: Female
+        languages:
+        - en
+        name: Amelia
+        name_ar: أميليا
+        type: public
+    Body_create_voice_v1_audio_voices_post:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the personalized voice to be created.
+        audio:
+          type: string
+          format: binary
+          title: Audio
+          description: The audio sample to create the personalized voice. Only WAV format is accepted.
+        transcript:
+          type: string
+          title: Transcript
+          description: The transcript of the audio sample.
+      type: object
+      required:
+      - name
+      - audio
+      - transcript
+      title: Body_create_voice_v1_audio_voices_post
+    STTFormat:
+      type: string
+      enum:
+      - text
+      - srt
+      - json
+      title: STTFormat
+    TextToSpeechRequest:
+      properties:
+        model:
+          $ref: '#/components/schemas/TTSModels'
+          description: The model to use for the text-to-speech.
+        input:
+          type: string
+          title: Input
+          description: The text to generate audio for.
+        voice:
+          type: string
+          title: Voice
+          description: 'The voice to use for the text-to-speech. Details are below:
+
+            <table style="min-width:600px"><thead><tr><th nowrap width="160">Voice</th><th nowrap width="80">Gender</th><th nowrap width="180">Supported Languages</th><th nowrap width="100">Accent</th><th nowrap width="80">Emotion</th></tr></thead><tbody><tr><td nowrap>Abdulrahman</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Abdulrahman">Arabic</a></td><td nowrap>Standard</td><td nowrap>✓</td></tr><tr><td nowrap>Amelia</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Amelia">English</a></td><td nowrap>British</td><td nowrap>—</td></tr><tr><td nowrap>Emily</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Emily">English</a></td><td nowrap>American</td><td nowrap>—</td></tr><tr><td nowrap>Hamad</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Hamad">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Harry</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Harry">English</a></td><td nowrap>British</td><td nowrap>—</td></tr><tr><td nowrap>Huda</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Huda">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Jake</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Jake">English</a></td><td nowrap>American</td><td nowrap>—</td></tr><tr><td nowrap>Jasim</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Jasim">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Noor</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Noor">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Radwa</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Radwa">Arabic</a></td><td nowrap>Standard</td><td nowrap>✓</td></tr></tbody></table>'
+          enum:
+          - Abdulrahman
+          - Amelia
+          - Emily
+          - Hamad
+          - Harry
+          - Huda
+          - Jake
+          - Jasim
+          - Noor
+          - Radwa
+        response_format:
+          $ref: '#/components/schemas/TTSResponseFormat'
+          description: The format of the output audio. Supported formats are `mp3` and `wav`.
+          default: mp3
+        quran_reciter:
+          $ref: '#/components/schemas/QuranReciters'
+          description: The Quran reciter to use when using Fanar-Sadiq-TTS-1 model for Quranic text.
+          default: abdul-basit
+        with_emotion:
+          type: boolean
+          title: With Emotion
+          description: 'Enable emotional speech synthesis. **Only applicable to `Fanar-Aura-TTS-2` and to voices where `emotion: true` in GET /v1/voices.** When the selected voice does not support emotion, or when used with `Fanar-Sadiq-TTS-1`, the request is rejected with a 422 error. Defaults to false.'
+          default: false
+        stream:
+          type: boolean
+          title: Stream
+          description: Stream the audio as it is generated. Supported for both `wav` and `mp3`.
+          default: false
+      type: object
+      required:
+      - model
+      - input
+      - voice
+      title: TextToSpeechRequest
+      example:
+        model: Fanar-Aura-TTS-2
+        input: Hello, welcome to Fanar!
+        voice: Harry
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      description: Provide your API key in the Authorization header using the Bearer scheme.

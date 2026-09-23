@@ -1,0 +1,46 @@
+{
+  "provider": "hbku",
+  "sources": [
+    "_original/hbku-fanar-api-openapi.json",
+    "hbku-arabic-nlp-api-openapi.yml"
+  ],
+  "outputs": [
+    "hbku-audio-api-openapi.yml",
+    "hbku-chat-api-openapi.yml",
+    "hbku-images-api-openapi.yml",
+    "hbku-models-api-openapi.yml",
+    "hbku-moderations-api-openapi.yml",
+    "hbku-poems-api-openapi.yml",
+    "hbku-tokens-api-openapi.yml",
+    "hbku-translations-api-openapi.yml",
+    "hbku-arabic-nlp-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [
+    "hbku-arabic-nlp-api-openapi.yml: previously refined output kept for 6 operation(s) no archived document covers (e.g. /diacritize/ post, /lemmatization/ post, /ner/ post); its other 0 operation(s) came from the archive and were dropped from it. The archive is incomplete for this provider \u2014 re-harvest to restore _original/ as the full source of truth."
+  ],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "hbku-fanar-api-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "hbku-fanar-api-openapi.json: declared missing tag: Audio",
+    "hbku-fanar-api-openapi.json: declared missing tag: Chat",
+    "hbku-fanar-api-openapi.json: declared missing tag: Images",
+    "hbku-fanar-api-openapi.json: declared missing tag: Models",
+    "hbku-fanar-api-openapi.json: declared missing tag: Moderations",
+    "hbku-fanar-api-openapi.json: declared missing tag: Poems",
+    "hbku-fanar-api-openapi.json: declared missing tag: Tokens",
+    "hbku-fanar-api-openapi.json: declared missing tag: Translations",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "hbku-audio-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-chat-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-images-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-models-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-moderations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-poems-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-tokens-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "hbku-translations-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

@@ -1,0 +1,296 @@
+openapi: 3.2.0
+info:
+  title: Fanar Moderations API
+  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+  termsOfService: https://fanar.qa/terms-of-services
+  contact:
+    name: Fanar Support
+    url: https://fanar.qa/
+    email: support@fanar.qa
+  version: 1.0.0
+  x-logo:
+    url: /static/white-logo.svg
+    alt: logo
+security:
+- Bearer: []
+tags:
+- name: Moderations
+paths:
+  /v1/moderations:
+    post:
+      tags:
+      - Moderations
+      summary: Identify Safety
+      description: 'FanarGuard gives each prompt–response pair safety and cultural-awareness scores, allowing moderation thresholds to be tailored to the deployment.
+
+        For our definition of cultural awareness, refer to https://arxiv.org/abs/2511.18852.'
+      operationId: identify_safety_v1_moderations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SafetyFilterRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SafetyFilterResponse'
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+      security:
+      - Bearer: []
+      x-codeSamples:
+      - lang: Curl
+        label: cURL
+        source: "curl -X POST \"https://api.fanar.qa/v1/moderations\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -d '{\n    \"model\": \"Fanar-Guard-2\",\n    \"prompt\": \"Your prompt here\",\n    \"response\": \"Response from the model here\"\n  }'\n"
+      - lang: Python
+        label: Python - requests
+        source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Guard-2\",\n    \"prompt\": \"Your prompt here\",\n    \"response\": \"Response from the model here\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/moderations\", headers=headers, json=json_data)\n\nprint(response.json())  # Print the safety and cultural awareness scores"
+components:
+  schemas:
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    ModerationModels:
+      type: string
+      enum:
+      - Fanar-Guard-2
+      title: ModerationModels
+    SafetyFilterResponse:
+      properties:
+        safety:
+          type: number
+          title: Safety
+          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
+        cultural_awareness:
+          type: number
+          title: Cultural Awareness
+          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
+      type: object
+      required:
+      - safety
+      - cultural_awareness
+      title: SafetyFilterResponse
+    SafetyFilterRequest:
+      properties:
+        model:
+          $ref: '#/components/schemas/ModerationModels'
+          description: The model to use for safety filtering.
+        prompt:
+          type: string
+          title: Prompt
+          description: The prompt.
+        response:
+          type: string
+          title: Response
+          description: The model's response to the prompt.
+      type: object
+      required:
+      - model
+      - prompt
+      - response
+      title: SafetyFilterRequest
+      example:
+        model: Fanar-Guard-2
+        prompt: What is the weather?
+        response: The weather is sunny today.
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      description: Provide your API key in the Authorization header using the Bearer scheme.

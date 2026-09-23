@@ -64,52 +64,82 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Hamad Bin Khalifa University (HBKU) is a research-intensive graduate university founded in 2010 within Qatar Foundation's Education City in Doha, Qatar, and ranked #183 in the QS World University Rankings 2025. This repository catalogs HBKU's public developer/API footprint as an APIs.json profile. HBKU does not operate a centralized public developer portal or documented institutional API; its most significant public, machine-readable surface is its scholarly research output deposited in Manara - Qatar Research Repository (Figshare-powered, hosted by Qatar National Library), accessible via Figshare's public REST API v2 and OAI-PMH endpoint.
+Hamad Bin Khalifa University (HBKU) is a research-intensive graduate university founded in 2010 within Qatar Foundation's Education City in Doha, Qatar. This repository catalogs HBKU's public developer/API footprint as an APIs.json profile, with an explicit operator attribution on every surface.
+
+HBKU's central administration publishes no developer portal, no open-data portal and no identity-federation entry. Its engineered API footprint comes from one research institute — the Qatar Computing Research Institute (QCRI), whose domain `qcri.org` redirects into `hbku.edu.qa` — which operates **Fanar**, Qatar's Arabic generative-AI platform, and **Farasa**, an Arabic NLP web API.
 
 - APIs.json: https://raw.githubusercontent.com/api-evangelist/hbku/refs/heads/main/apis.yml
 - Run with Naftiko: https://github.com/naftiko/fleet?utm_source=api-evangelist&utm_medium=readme&utm_campaign=hbku-api-evangelist&utm_content=repo
 
 ## Type
 
-- Index / Consumer / 3rd-Party
+- Index / Provider / 1st-Party — `x-type: university`, `x-category: Private Research University`
 
 ## Tags
 
-Education, Higher Education, University, Research, Open Access, Repository, Qatar, Middle East
+University, Higher Education, Education, Research, Qatar, Middle East, Artificial Intelligence, Large Language Models, Natural Language Processing, Arabic, Research Computing, Research Data, Course Catalog, Repository, Open Access
 
 ## APIs
 
-- **Figshare API v2 (Manara - HBKU Research)** — JSON REST API for HBKU research articles, datasets, and collections hosted in Manara. Docs: https://docs.figshare.com/ (base `https://api.figshare.com/v2`)
-- **Figshare OAI-PMH (Manara - HBKU Research)** — OAI-PMH v2.0 metadata harvesting for HBKU works. Docs: https://help.figshare.com/article/how-to-use-the-oai-pmh (base `https://api.figshare.com/v2/oai`)
+Every entry carries an `x-operator`: who runs the thing the contract describes, which for a university is rarely the same answer as whose name is on the door.
 
-These are third-party platforms hosting HBKU content, not APIs operated by HBKU directly. No HBKU-operated public API was found.
+**Institution-operated (HBKU's own engineering):**
+
+- **Fanar API** (`x-operator: institution`) — Qatar's Arabic generative-AI platform, built by QCRI at HBKU with support from the Ministry of Communications and Information Technology. First-party OpenAPI 3.1.0 at https://api.fanar.qa/openapi.json — 11 paths, 12 operations, bearer auth, 14 documented error statuses behind one `Error` envelope, and a published per-model rate-limit table with `ratelimit-policy` headers. OpenAI-client compatible. Docs: https://api.fanar.qa/docs (base `https://api.fanar.qa`)
+- **Farasa Web API** (`x-operator: institution`) — QCRI's Arabic NLP toolkit as a keyed web API. Six endpoints confirmed live by probe (segmentation, lemmatization, pos, ner, diacritize, spellcheck). The OpenAPI in this repo is **derived** from QCRI's own published code samples plus those probes, not published by the provider. Docs: https://farasa.qcri.org/ (base `https://farasa.qcri.org/webapi`)
+
+**Tenant relationships (HBKU's data, someone else's contract) — recorded, not credited:**
+
+- **Elmi Research Portal — OAI-PMH** (`x-operator: tenant`) — a working, unauthenticated OAI-PMH 2.0 endpoint over HBKU's Elsevier Pure instance at `https://elmi.hbku.edu.qa/ws/oai`, confirmed by `?verb=Identify` (adminEmail `elmi@hbku.edu.qa`), `ListMetadataFormats`, `ListSets` and `ListRecords`. This is the one education-regime domain standard HBKU meets. Pure's own REST API on the same host requires a key (401).
+- **HBKU Academic Catalog — Course Search** (`x-operator: tenant`) — CourseLeaf JSON course-search at `https://catalog.hbku.edu.qa/course-search/api/`. Answers unauthenticated, but its backing term database is missing server-side, so it currently returns a fatal database error rather than course data.
+- **Manara — Qatar Research Repository (HBKU portal)** (`x-operator: tenant`) — HBKU deposits on a Figshare platform operated by Qatar National Library. Behind an AWS WAF challenge (HTTP 202).
+
+**Removed 2026-08-30:** eleven Figshare API definitions (`altmetric`, `articles`, `authors`, `collections`, `institutions`, `oauth`, `other`, `profiles`, `projects`, `symplectic`, plus the Figshare OAI-PMH entry) were recorded here as HBKU's own APIs. They were one Figshare contract — `info.title: Figshare API`, `contact: Figshare Support`, `servers: https://api.figshare.com/v2` — split eleven ways by tag, and the same document is shipped by a dozen other universities in this catalog. The specs and every artifact derived from them (collections, JSON Schema, JSON Structure, examples, rules, vocabulary, scopes, authentication, agentic-access, capability edges) have been removed. The relationship they misdescribed is preserved above as the Manara tenant entry.
 
 ## Plans / Rate Limits / FinOps
 
-- Plans & Pricing: [plans/hbku-plans-pricing.yml](plans/hbku-plans-pricing.yml)
-- Rate Limits: [rate-limits/hbku-rate-limits.yml](rate-limits/hbku-rate-limits.yml)
+- Plans & Pricing: [plans/hbku-plans-pricing.yml](plans/hbku-plans-pricing.yml) — both APIs are free, gated by request rather than payment
+- Rate Limits: [rate-limits/hbku-rate-limits.yml](rate-limits/hbku-rate-limits.yml) — Fanar's real published per-model table
 - FinOps: [finops/hbku-finops.yml](finops/hbku-finops.yml)
+
+## Artifacts
+
+- OpenAPI: [openapi/hbku-fanar-api-openapi.yml](openapi/hbku-fanar-api-openapi.yml) (`searched`), [openapi/hbku-farasa-api-openapi.yml](openapi/hbku-farasa-api-openapi.yml) (`derived`)
+- Pristine source: [openapi/_original/hbku-fanar-api-openapi.json](openapi/_original/hbku-fanar-api-openapi.json)
+- Errors: [errors/hbku-fanar-errors.yml](errors/hbku-fanar-errors.yml)
+- Authentication: [authentication/hbku-authentication.yml](authentication/hbku-authentication.yml)
+- JSON Schema: [json-schema/](json-schema/) · Examples: [examples/](examples/) · Rules: [rules/hbku-rules.yml](rules/hbku-rules.yml)
+- Vocabulary: [vocabulary/hbku-vocabulary.yml](vocabulary/hbku-vocabulary.yml) · JSON-LD: [json-ld/hbku-context.jsonld](json-ld/hbku-context.jsonld)
+- Conformance (education regime): [conformance/hbku-education-standards.yml](conformance/hbku-education-standards.yml) — 1 of 12 met (`oai-pmh`)
+- Lifecycle: [lifecycle/hbku-lifecycle.yml](lifecycle/hbku-lifecycle.yml) · Domain security: [security/hbku-domain-security.yml](security/hbku-domain-security.yml)
 
 ## Timestamps
 
 - Created: 2026-06-03
-- Modified: 2026-06-03
+- Modified: 2026-08-30
 
 ## Common Properties
 
 - Website: https://www.hbku.edu.qa/en/home
-- GitHub: https://github.com/cri-lab-hbku
-- LinkedIn: https://www.linkedin.com/school/hamad-bin-khalifa-university/
-- Twitter/X: https://x.com/hbku
+- Privacy Policy: https://www.hbku.edu.qa/en/privacy-policy
+- Blog / News: https://www.hbku.edu.qa/en/news
+- AI Tooling: https://fanar.qa/en
+- Developer Portal: https://api.fanar.qa/docs
+- Research Computing: https://www.hbku.edu.qa/en/qcri
+- Research Repository: https://elmi.hbku.edu.qa/ (Elmi / Pure) · https://manara.qnl.qa/hbku (Manara / Figshare)
+- Course Catalog: https://catalog.hbku.edu.qa/
 - Library: https://www.hbku.edu.qa/en/hbku-library
-- Repository: https://manara.qnl.qa/hbku
+- GitHub Organization: https://github.com/qcri
+- Models: https://huggingface.co/QCRI
+- LinkedIn: https://www.linkedin.com/school/hamad-bin-khalifa-university/
+- X: https://x.com/hbku
 
 ## Notes
 
-- No centralized HBKU developer portal or documented institutional API was found. Academic catalog (catalog.hbku.edu.qa), library OPAC/databases, and the Elmi research management portal resolve live but expose no public programmatic access.
-- HBKU API surface cataloged here is hosted on third-party platforms (Figshare/Manara) with confirmed live public endpoints. No endpoints were fabricated.
-- `cri-lab-hbku` is HBKU's Cybersecurity Research Lab GitHub org (public research repos), not a central university API org.
-- Verification details and probed HTTP statuses are recorded in [review.yml](review.yml).
+- Every pointer emitted here was fetched on 2026-08-30 and graded on its status code, not on its presence. Soft-404s were caught by body comparison: `fanar.qa/en/terms` and `fanar.qa/en/release-notes` return HTTP 200 with the homepage shell, while `fanar.qa/en/terms-of-services` and `fanar.qa/en/2-0-release-notes` are the real pages.
+- Probed negatives: `data.hbku.edu.qa`, `sis.hbku.edu.qa`, `banner.hbku.edu.qa` and `idp.hbku.edu.qa` do not resolve; `sso.hbku.edu.qa` serves a certificate that does not match the hostname; `www.hbku.edu.qa/.well-known/security.txt` and `/llms.txt` return 404; `api.hbku.edu.qa` resolves but a BIG-IP WAF rejects every request. HBKU is in no eduGAIN federation — none of eduGAIN's 92 federations is Qatari and no `hbku.edu.qa` entity is registered.
+- No endpoints were fabricated. Where a response shape could not be observed without a credential — Farasa's 200 body, Fanar's authenticated responses — no schema is asserted and the artifact says so.
+- Verification details and probed HTTP statuses are recorded in [review.yml](review.yml) and in `x-coverage` in [apis.yml](apis.yml).
 
 ## Maintainers
 

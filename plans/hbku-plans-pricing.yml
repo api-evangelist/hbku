@@ -1,10 +1,14 @@
+# authorship: written by API Evangelist tooling from the provider's own pages, 2026-08-30.
+x-method: derived
 specification: API Commons Plans
 specificationVersion: '0.1'
 schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
 provider: Hamad Bin Khalifa University
 providerId: hbku
 created: '2026-06-03'
-modified: '2026-06-03'
+modified: '2026-08-30'
+generated: '2026-08-30'
+method: probed
 reconciled: false
 tags:
 - Education
@@ -12,25 +16,33 @@ tags:
 - University
 - Plans
 description: >-
-  Hamad Bin Khalifa University is a non-commercial higher-education institution; its APIs are not sold
-  as a commercial product. Public APIs (library, repository, course, and open-metadata
-  interfaces) are offered free of charge, typically for non-commercial use. Most
-  administrative and identity APIs are not openly self-service and require institutional
-  affiliation, credentials, or federation membership rather than a paid plan.
+  Hamad Bin Khalifa University sells nothing through an API. Both interfaces it operates — the Fanar
+  API and the Farasa Web API, each run by the Qatar Computing Research Institute — are free of
+  charge and gated by a key you request rather than buy. Neither publishes a price, a paid tier or a
+  billing surface; Fanar instead publishes a per-model rate-limit table and says higher throughput
+  is arranged by contacting the team. This file was rewritten on 2026-08-30: the version it replaces
+  described plans for library, course and repository interfaces the university does not operate.
 notes: >-
-  No published per-seat or per-call commercial pricing. "Free / Open" reflects open
-  public endpoints; "Affiliation / Credentialed" reflects access gated by institutional
-  identity rather than payment.
+  No commercial pricing exists to record. The only gate is registration, and the only quota is the
+  published rate limit — see rate-limits/hbku-rate-limits.yml.
 sources:
-- https://raw.githubusercontent.com/api-evangelist/hbku/refs/heads/main/apis.yml
+- https://api.fanar.qa/openapi.json
+- https://api.fanar.qa/request/en
+- https://farasa.qcri.org/
 plans:
-- id: hbku-free-open
-  name: Free / Open
+- id: hbku-fanar-requested-access
+  name: Fanar API — Requested Access
   type: free
-  description: Public open APIs (metadata, library, repository, course data) offered at no charge, generally for non-commercial use.
+  api: Fanar API
+  x-operator: institution
+  description: >-
+    Free API access granted on request at https://api.fanar.qa/request/en. Default quotas are
+    per-model: 50 requests/minute for the chat, guard and poetry models, 10-20 requests/day for the
+    speech, vision, image-generation and translation models. Higher or tailored limits are
+    negotiated directly with the provider.
   entries:
-  - label: Open API Access
-    name: open_api_access
+  - label: Requested API Access
+    name: requested_api_access
     type: free
     metric: requests
     limit: -1
@@ -39,13 +51,18 @@ plans:
     unit: 1
     price: '0.00'
     userMultiplied: false
-- id: hbku-affiliation
-  name: Affiliation / Credentialed
+- id: hbku-farasa-registered-access
+  name: Farasa Web API — Registered Access
   type: free
-  description: Administrative and identity APIs gated behind institutional SSO, client certificates, or federation membership rather than payment.
+  api: Farasa Web API
+  x-operator: institution
+  description: >-
+    Free API access after registration at https://farasa.qcri.org. QCRI states the web service is
+    free of charge and that registration exists for security rather than metering. No quota is
+    published and none could be measured without a key.
   entries:
-  - label: Credentialed Access
-    name: credentialed_access
+  - label: Registered API Access
+    name: registered_api_access
     type: free
     metric: requests
     limit: -1

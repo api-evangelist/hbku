@@ -1,0 +1,28 @@
+{
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "derived",
+    "source": "openapi/_original/hbku-fanar-api-openapi.json#/paths/~1v1~1chat~1completions/post/x-codeSamples",
+    "note": "Request shape taken verbatim from the provider's own cURL code sample. No response body is asserted — a 200 requires a registered API key and was not observed."
+  },
+  "operation": "POST /v1/chat/completions",
+  "description": "Chat completion against the Fanar Arabic LLM. The API is OpenAI-client compatible: the provider's own Python sample points the openai SDK at base_url https://api.fanar.qa/v1.",
+  "request": {
+    "method": "POST",
+    "url": "https://api.fanar.qa/v1/chat/completions",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_API_KEY_HERE"
+    },
+    "body": {
+      "model": "Fanar",
+      "messages": [
+        { "role": "user", "content": "Your message here" }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "note": "Not captured — authenticated call not performed. See components.schemas.ChatCompletionResponse in the OpenAPI for the documented shape."
+  }
+}

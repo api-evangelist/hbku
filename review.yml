@@ -3,8 +3,83 @@ name: Hamad Bin Khalifa University
 description: Hamad Bin Khalifa University public developer/API footprint review for APIs.json cataloging.
 url: https://raw.githubusercontent.com/api-evangelist/hbku/refs/heads/main/review.yml
 created: '2026-06-03'
-modified: '2026-06-03'
+modified: '2026-08-30'
 reviews:
+  - date: '2026-08-30'
+    rating: 6
+    pipeline: pipeline-university.md
+    summary: >-
+      Re-profiled under the university pipeline, with operator attribution settled before anything
+      was saved. The June review's central conclusion — that HBKU operates no institutional API —
+      was wrong in one direction and its artifact set was wrong in another. Wrong in the artifact
+      set: eleven "HBKU" OpenAPIs in this repo were a single Figshare contract (info.title
+      "Figshare API", contact "Figshare Support", servers https://api.figshare.com/v2) split by
+      tag, a document a dozen other universities in this catalog also ship. Those and every
+      artifact derived from them have been removed. Wrong in the conclusion: HBKU does operate
+      first-party APIs, through the Qatar Computing Research Institute. Fanar — Qatar's Arabic
+      generative-AI platform — publishes a genuine first-party OpenAPI 3.1.0 with 12 operations,
+      bearer auth, a fourteen-code error vocabulary and a published per-model rate-limit table.
+      Farasa exposes six live Arabic NLP endpoints. Two further surfaces the June review recorded
+      as having no API in fact do: Elmi serves a fully working public OAI-PMH 2.0 endpoint, and the
+      academic catalog ships a JSON course-search API (currently returning a server-side database
+      error). Net effect on score is expected to be down, not up: the Figshare volume that inflated
+      it is gone and what replaces it is smaller, but it is actually HBKU's.
+    endpoints:
+      - url: https://api.fanar.qa/openapi.json
+        status: 200
+        note: First-party OpenAPI 3.1.0, 156KB, 11 paths / 12 operations. x-operator institution.
+      - url: https://api.fanar.qa/v1/models
+        status: 401
+        note: 'Live and keyed: {"error":{"code":"invalid_authentication","status":401}}.'
+      - url: https://api.fanar.qa/docs
+        status: 200
+        note: Scalar-rendered API reference.
+      - url: https://api.fanar.qa/request/en
+        status: 200
+        note: API access request form — the only onboarding path.
+      - url: https://fanar.qa/en
+        status: 200
+        note: 'States the operator verbatim: "Developed by Qatar Computing Research Institute at Hamad Bin Khalifa University".'
+      - url: https://fanar.qa/en/terms-of-services
+        status: 200
+        note: Real page. /en/terms is a soft-404 returning the homepage shell.
+      - url: https://qcri.org/
+        status: 200
+        note: Redirects to https://www.hbku.edu.qa/en/qcri — this is what makes QCRI surfaces institution-operated.
+      - url: https://farasa.qcri.org/webapi/lemmatization/
+        status: 400
+        note: 'Live, keyed: "invalid api key. please register at: https://farasa.qcri.org". Same for segmentation, pos, ner, diacritize, spellcheck.'
+      - url: https://farasa.qcri.org/webapi/constituency/
+        status: 404
+        note: Negative control — advertised module with no web API endpoint.
+      - url: https://elmi.hbku.edu.qa/ws/oai?verb=Identify
+        status: 200
+        note: Valid OAI-PMH 2.0 envelope, adminEmail elmi@hbku.edu.qa. ListMetadataFormats, ListSets and ListRecords all answer unauthenticated.
+      - url: https://elmi.hbku.edu.qa/ws/api/persons
+        status: 401
+        note: Elsevier Pure REST API, key-gated; canonicalizes to api.elsevierpure.com. Tenant — no spec saved.
+      - url: https://catalog.hbku.edu.qa/course-search/api/?page=fose&route=search
+        status: 200
+        note: 'CourseLeaf JSON API answers, but returns {"fatal":"Could not execute database query: Cannot open database: \"fose-clss202410\""} for the term the page itself advertises.'
+      - url: https://manara.qnl.qa/hbku
+        status: 202
+        note: 'AWS WAF challenge (x-amzn-waf-action: challenge). Live but not machine-readable unattended. Tenant.'
+      - url: https://api.hbku.edu.qa/
+        status: 200
+        note: Resolves, but BIG-IP returns "Request Rejected" for every path. No documented interface.
+      - url: https://www.hbku.edu.qa/.well-known/security.txt
+        status: 404
+        note: No security.txt.
+      - url: https://www.hbku.edu.qa/llms.txt
+        status: 404
+        note: No llms.txt.
+      - url: https://technical.edugain.org/api.php?action=list_feds
+        status: 200
+        note: 92 federations, none Qatari; no hbku.edu.qa entity in the eduGAIN entity list. No IdentityFederation surface.
+      - url: https://github.com/qcri
+        status: 200
+        note: QCRI's GitHub org, 100+ active research repos. Replaces the cri-lab-hbku pointer, which is a single lab's personal account.
+  # --- prior review, retained ---
   - date: '2026-06-03'
     rating: 2
     summary: >-

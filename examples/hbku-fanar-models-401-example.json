@@ -1,0 +1,27 @@
+{
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "probed",
+    "source": "https://api.fanar.qa/v1/models",
+    "note": "Live unauthenticated probe run 2026-08-30. Request and response body captured verbatim; no key was used and none is shown."
+  },
+  "operation": "GET /v1/models",
+  "description": "Unauthenticated call to the Fanar model listing. Demonstrates the provider's Error envelope exactly as returned in production.",
+  "request": {
+    "method": "GET",
+    "url": "https://api.fanar.qa/v1/models"
+  },
+  "response": {
+    "status": 401,
+    "headers": { "content-type": "application/json" },
+    "body": {
+      "error": {
+        "code": "invalid_authentication",
+        "message": "Invalid authentication",
+        "status": 401,
+        "param": null,
+        "type": null
+      }
+    }
+  }
+}

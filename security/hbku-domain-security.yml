@@ -1,25 +1,24 @@
-generated: '2026-07-11'
+generated: '2026-08-30'
 method: probed
 source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
 hosts:
 - host: www.hbku.edu.qa
   https: true
   tls_version: TLSv1.3
-  cert_expires: Sep 30 09:20:22 2026 GMT
+  cert_expires: Nov 15 13:42:08 2026 GMT
   hsts: true
   hsts_max_age: 300
-- host: docs.figshare.com
+- host: api.fanar.qa
   https: true
-  tls_version: TLSv1.2
-  cert_expires: Dec 25 23:59:59 2026 GMT
-  hsts: true
-  hsts_max_age: 31536000
-- host: api.figshare.com
+  tls_version: TLSv1.3
+  cert_expires: Dec  1 11:12:13 2026 GMT
+  hsts: null
+- host: farasa.qcri.org
   https: true
-  tls_version: TLSv1.2
-  cert_expires: Dec 25 23:59:59 2026 GMT
+  tls_version: TLSv1.3
+  cert_expires: Oct  4 09:58:21 2026 GMT
   hsts: true
-  hsts_max_age: 31536000
+  hsts_max_age: 15768000
 domains:
 - domain: hbku.edu.qa
   dnssec: false
@@ -27,15 +26,9 @@ domains:
   spf: true
   dmarc: true
   dmarc_policy: none
-- domain: figshare.com
+- domain: fanar.qa
   dnssec: false
-  caa:
-  - 0 issuewild "letsencrypt.org"
-  - 0 issuewild "pki.goog; cansignhttpexchanges=yes"
-  - 0 issuewild "sectigo.com"
-  - 0 issuewild "ssl.com"
-  - 0 issue "amazon.com"
-  - 0 issue "amazontrust.com"
+  caa: []
   spf: true
   dmarc: true
-  dmarc_policy: reject
+  dmarc_policy: none

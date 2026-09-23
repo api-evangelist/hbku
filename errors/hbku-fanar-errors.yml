@@ -1,0 +1,85 @@
+generated: '2026-08-30'
+method: derived
+source: openapi/_original/hbku-fanar-api-openapi.json
+provider: Hamad Bin Khalifa University
+providerId: hbku
+api: Fanar API
+x-operator: institution
+description: Error contract for the Fanar API, operated by the Qatar Computing Research Institute at Hamad
+  Bin Khalifa University. Every code and status below is declared in the provider's own OpenAPI 3.1.0
+  document — components.schemas.Error, ErrorCode and ErrorStatus, plus the per-response examples. Nothing
+  here is inferred.
+envelope:
+  shape: '{"error": {"code": <ErrorCode>, "message": <string>, "status": <ErrorStatus>, "param": <string|null>,
+    "type": <ErrorContentFilterType|null>}}'
+  schema: json-schema/hbku-fanar-error-schema.json
+  verified: GET https://api.fanar.qa/v1/models returned this envelope with code invalid_authentication
+    on 2026-08-30 (examples/hbku-fanar-models-401-example.json)
+codes:
+- code: content_filter
+  status: 400
+  message: The content was filtered
+  description: The content was filtered
+- code: invalid_authentication
+  status: 401
+  message: Invalid authentication
+  description: Invalid authentication
+- code: invalid_authorization
+  status: 403
+  message: Invalid authorization
+  description: Invalid authorization
+- code: rate_limit_reached
+- code: exceeded_quota
+  status: 429
+  message: Exceeded quota
+  description: Rate limit reached or Exceeded quota
+- code: internal_server_error
+  status: 500
+  message: Internal server error
+  description: Internal server error
+- code: overloaded
+  status: 503
+  message: Service overloaded
+  description: Service overloaded
+- code: timeout
+  status: 504
+  message: Request timed out
+  description: Request timed out
+- code: too_large
+  status: 413
+  message: Request entity too large
+  description: Request entity too large
+- code: unprocessable
+  status: 422
+  message: Unprocessable
+  description: Unprocessable
+- code: conflict
+  status: 409
+  message: Conflict
+  description: Conflict
+- code: Not found
+  status: 404
+  message: Not found
+  description: Not found
+- code: no_longer_supported
+  status: 410
+  message: No longer supported
+  description: No longer supported
+- code: client_closed_request
+  status: 499
+  message: Client closed request before completion
+  description: Client closed request before completion
+statuses_declared:
+- 400
+- 401
+- 403
+- 404
+- 409
+- 410
+- 413
+- 422
+- 429
+- 499
+- 500
+- 503
+- 504

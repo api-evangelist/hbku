@@ -1,4 +1,14 @@
 {
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "derived",
+    "source": [
+      "https://www.hbku.edu.qa/en/home",
+      "https://fanar.qa/en",
+      "openapi/_original/hbku-fanar-api-openapi.json"
+    ],
+    "note": "Rewritten 2026-08-30. The previous context mapped Figshare repository object terms (Article, Author, Collection, PublicFile) into HBKU's namespace, describing a vendor's data model under the university's name."
+  },
   "@context": {
     "@version": 1.1,
     "schema": "https://schema.org/",
@@ -6,52 +16,55 @@
     "hbku": "https://www.hbku.edu.qa/ns#",
     "@vocab": "https://www.hbku.edu.qa/ns#",
 
-    "institution": {
-      "@id": "schema:CollegeOrUniversity",
-      "@type": "@id"
-    },
     "name": "schema:name",
-    "url": "schema:url",
+    "url": { "@id": "schema:url", "@type": "@id" },
     "description": "schema:description",
     "foundingDate": "schema:foundingDate",
     "location": "schema:location",
     "parentOrganization": { "@id": "schema:parentOrganization", "@type": "@id" },
+    "subOrganization": { "@id": "schema:subOrganization", "@type": "@id" },
+    "department": { "@id": "schema:department", "@type": "@id" },
+    "owns": { "@id": "schema:owns", "@type": "@id" },
 
-    "Article": "hbku:Article",
-    "Author": { "@id": "hbku:Author", "@type": "@id" },
-    "Collection": "hbku:Collection",
-    "Category": "hbku:Category",
-    "PublicFile": "hbku:PublicFile",
-
-    "id": "schema:identifier",
-    "title": "schema:name",
-    "doi": { "@id": "schema:identifier", "@type": "schema:PropertyValue" },
-    "handle": "schema:identifier",
-    "published_date": { "@id": "schema:datePublished", "@type": "schema:Date" },
-    "created_date": { "@id": "schema:dateCreated", "@type": "schema:Date" },
-    "defined_type_name": "schema:additionalType",
-    "license": { "@id": "schema:license", "@type": "@id" },
-    "keywords": "schema:keywords",
-    "tags": "schema:keywords",
-    "categories": "schema:about",
-    "citation": "schema:citation",
-    "references": { "@id": "schema:citation", "@type": "@id" },
-
-    "authors": { "@id": "schema:author", "@container": "@list" },
-    "full_name": "schema:name",
-    "first_name": "schema:givenName",
-    "last_name": "schema:familyName",
-    "orcid_id": { "@id": "schema:identifier", "@type": "@id" },
-
-    "files": { "@id": "schema:associatedMedia", "@container": "@list" },
-    "download_url": { "@id": "schema:contentUrl", "@type": "@id" },
-    "size": "schema:contentSize",
-    "mimetype": "schema:encodingFormat"
+    "ResearchInstitute": "schema:ResearchOrganization",
+    "SoftwareApplication": "schema:SoftwareApplication",
+    "WebAPI": "schema:WebAPI",
+    "documentation": { "@id": "schema:documentation", "@type": "@id" },
+    "termsOfService": { "@id": "schema:termsOfService", "@type": "@id" },
+    "provider": { "@id": "schema:provider", "@type": "@id" },
+    "operator": "hbku:operator"
   },
   "@type": "schema:CollegeOrUniversity",
+  "@id": "https://www.hbku.edu.qa/en/home",
   "name": "Hamad Bin Khalifa University",
   "url": "https://www.hbku.edu.qa/en/home",
   "foundingDate": "2010",
+  "location": "Education City, Doha, Qatar",
   "parentOrganization": "https://www.qf.org.qa/",
-  "description": "Research-intensive graduate university in Education City, Doha, Qatar. Public research output is hosted in Manara - Qatar Research Repository and exposed via the Figshare API v2."
+  "description": "Research-intensive graduate university in Education City, Doha, Qatar. Its programmable footprint is operated through the Qatar Computing Research Institute rather than through central IT.",
+  "subOrganization": {
+    "@type": "schema:ResearchOrganization",
+    "@id": "https://www.hbku.edu.qa/en/qcri",
+    "name": "Qatar Computing Research Institute",
+    "url": "https://www.hbku.edu.qa/en/qcri",
+    "owns": [
+      {
+        "@type": "schema:WebAPI",
+        "@id": "https://api.fanar.qa",
+        "name": "Fanar API",
+        "description": "Arabic generative-AI platform API — chat, speech, vision, translation, moderation.",
+        "documentation": "https://api.fanar.qa/docs",
+        "termsOfService": "https://fanar.qa/en/terms-of-services",
+        "operator": "institution"
+      },
+      {
+        "@type": "schema:WebAPI",
+        "@id": "https://farasa.qcri.org/webapi",
+        "name": "Farasa Web API",
+        "description": "Arabic natural-language processing modules — segmentation, lemmatization, POS, NER, diacritization, spell-checking.",
+        "documentation": "https://farasa.qcri.org/",
+        "operator": "institution"
+      }
+    ]
+  }
 }

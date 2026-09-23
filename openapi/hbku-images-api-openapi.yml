@@ -1,0 +1,338 @@
+openapi: 3.2.0
+info:
+  title: Fanar Images API
+  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+  termsOfService: https://fanar.qa/terms-of-services
+  contact:
+    name: Fanar Support
+    url: https://fanar.qa/
+    email: support@fanar.qa
+  version: 1.0.0
+  x-logo:
+    url: /static/white-logo.svg
+    alt: logo
+security:
+- Bearer: []
+tags:
+- name: Images
+paths:
+  /v1/images/generations:
+    post:
+      tags:
+      - Images
+      summary: Create Image
+      description: 'This endpoint is compatible with the OpenAI library.
+
+        Creates an image given a prompt.'
+      operationId: create_image_v1_images_generations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageGenerationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageGenerationResponse'
+        '400':
+          description: The content was filtered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: content_filter
+                  message: The content was filtered
+                  status: 400
+                  param: prompt
+                  type: safety
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '504':
+          description: Request timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: timeout
+                  message: Request timed out
+                  status: 504
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: too_large
+                  message: Request entity too large
+                  status: 413
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: conflict
+                  message: Conflict
+                  status: 409
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: Not found
+                  message: Not found
+                  status: 404
+        '410':
+          description: No longer supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: no_longer_supported
+                  message: No longer supported
+                  status: 410
+        '499':
+          description: Client closed request before completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: client_closed_request
+                  message: Client closed request before completion
+                  status: 499
+      security:
+      - Bearer: []
+      x-codeSamples:
+      - lang: Curl
+        label: cURL
+        source: "curl -X POST \"https://api.fanar.qa/v1/images/generations\" \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer YOUR_API_KEY\" \\\n-d '{\n  \"model\": \"Fanar-Oryx-IG-2\",\n  \"prompt\": \"A serene sunset over a mountain lake with reflections of colorful clouds and pine trees\"\n}'\n"
+      - lang: Python
+        label: Python - OpenAI
+        source: "# Image Generation requires additional authorization and is not allowed by default.\n\nimport base64\nfrom openai import OpenAI\n\nclient = OpenAI(\n    base_url=\"https://api.fanar.qa/v1\",\n    api_key=\"YOUR_API_KEY\",\n)\n\nresponse = client.images.generate(\n    model=\"Fanar-Oryx-IG-2\",\n    prompt=\"A serene sunset over a mountain lake with reflections of colorful clouds and pine trees\"\n)\n\nimage_b64 = response.data[0].b64_json\n\nimage_bytes = base64.b64decode(image_b64)\n\nwith open(\"generated_image.png\", \"wb\") as f:\n    f.write(image_bytes)\n"
+      - lang: Python - requests
+        label: Python - requests
+        source: "# Image Generation requires additional authorization and is not allowed by default.\n\nimport requests\nimport base64\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Oryx-IG-2\",\n    \"prompt\": \"A serene sunset over a mountain lake with reflections of colorful clouds and pine trees\"\n}\n\nresponse = requests.post(\n    \"https://api.fanar.qa/v1/images/generations\",\n    headers=headers,\n    json=json_data\n)\n\ndata = response.json()\n\nimage_b64 = data[\"data\"][0][\"b64_json\"]\n\nimage_bytes = base64.b64decode(image_b64)\n\nwith open(\"generated_image.png\", \"wb\") as f:\n    f.write(image_bytes)"
+components:
+  schemas:
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    ImageGenerationModels:
+      type: string
+      enum:
+      - Fanar-Oryx-IG-2
+      title: ImageGenerationModels
+    ImageGenerationRequest:
+      properties:
+        model:
+          $ref: '#/components/schemas/ImageGenerationModels'
+          description: The model to use for the image generation.
+        prompt:
+          type: string
+          title: Prompt
+          description: A text description of the desired image.
+        revise:
+          type: boolean
+          title: Revise
+          description: Whether to automatically revise the prompt to enhance style, quality, and cultural alignment for improved generation results.
+          default: true
+      type: object
+      required:
+      - model
+      - prompt
+      title: ImageGenerationRequest
+      example:
+        model: Fanar-Oryx-IG-2
+        prompt: A futuristic cityscape at sunset
+    ImageGenerationItem-Output:
+      properties:
+        b64_json:
+          type: string
+          title: B64 Json
+          description: The base64-encoded JSON of the generated image.
+        revised:
+          type: boolean
+          title: Revised
+          description: Indicates whether the prompt was revised before generation.
+        revised_prompt:
+          type: string
+          title: Revised Prompt
+          description: The prompt used for generation, which may be revised from the original prompt.
+      type: object
+      required:
+      - b64_json
+      - revised
+      - revised_prompt
+      title: ImageGenerationItem
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    ImageGenerationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the image generation.
+        created:
+          type: integer
+          title: Created
+          description: The timestamp of when the image was created.
+        data:
+          items:
+            $ref: '#/components/schemas/ImageGenerationItem-Output'
+          type: array
+          title: Data
+          description: A list of the generated image.
+      type: object
+      required:
+      - id
+      - created
+      - data
+      title: ImageGenerationResponse
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      description: Provide your API key in the Authorization header using the Bearer scheme.

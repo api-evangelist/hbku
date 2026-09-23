@@ -1,3 +1,5 @@
+# authorship: written by API Evangelist tooling; no usage-based API billing exists to record.
+x-method: derived
 specification: FinOps Framework
 specificationVersion: '1.0'
 schema: https://www.finops.org/framework/
