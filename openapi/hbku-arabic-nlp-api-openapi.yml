@@ -110,17 +110,6 @@ components:
         api_key:
           type: string
           description: API key issued on registration at https://farasa.qcri.org.
-  requestBodies:
-    FarasaRequest:
-      required: true
-      description: The api_key travels in the request body, not in a header. Both application/json and application/x-www-form-urlencoded are accepted; any other content type is rejected with 400 "Unsupported content_type".
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/FarasaRequest'
-        application/x-www-form-urlencoded:
-          schema:
-            $ref: '#/components/schemas/FarasaRequest'
   responses:
     BadRequest:
       description: 'Rejected request. Observed forms, both returned as HTTP 400 with a text/plain body: "invalid api key. please register at: https://farasa.qcri.org" and "Unsupported content_type, use application/json or application/x-www-form-urlencoded".'
@@ -140,6 +129,17 @@ components:
           schema:
             type: object
             description: Provider-defined JSON result. Shape unverified; see x-provenance.
+  requestBodies:
+    FarasaRequest:
+      required: true
+      description: The api_key travels in the request body, not in a header. Both application/json and application/x-www-form-urlencoded are accepted; any other content type is rejected with 400 "Unsupported content_type".
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FarasaRequest'
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/FarasaRequest'
 x-operator: institution
 x-provenance:
   generated: '2026-08-30'

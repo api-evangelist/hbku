@@ -181,6 +181,68 @@ paths:
         source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Guard-2\",\n    \"prompt\": \"Your prompt here\",\n    \"response\": \"Response from the model here\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/moderations\", headers=headers, json=json_data)\n\nprint(response.json())  # Print the safety and cultural awareness scores"
 components:
   schemas:
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    SafetyFilterResponse:
+      properties:
+        safety:
+          type: number
+          title: Safety
+          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
+        cultural_awareness:
+          type: number
+          title: Cultural Awareness
+          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
+      type: object
+      required:
+      - safety
+      - cultural_awareness
+      title: SafetyFilterResponse
     ErrorCode:
       type: string
       enum:
@@ -204,21 +266,6 @@ components:
       enum:
       - Fanar-Guard-2
       title: ModerationModels
-    SafetyFilterResponse:
-      properties:
-        safety:
-          type: number
-          title: Safety
-          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
-        cultural_awareness:
-          type: number
-          title: Cultural Awareness
-          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
-      type: object
-      required:
-      - safety
-      - cultural_awareness
-      title: SafetyFilterResponse
     SafetyFilterRequest:
       properties:
         model:
@@ -242,53 +289,6 @@ components:
         model: Fanar-Guard-2
         prompt: What is the weather?
         response: The weather is sunny today.
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
   securitySchemes:
     Bearer:
       type: http

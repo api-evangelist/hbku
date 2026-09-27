@@ -197,24 +197,75 @@ paths:
         source: "# Image Generation requires additional authorization and is not allowed by default.\n\nimport requests\nimport base64\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Oryx-IG-2\",\n    \"prompt\": \"A serene sunset over a mountain lake with reflections of colorful clouds and pine trees\"\n}\n\nresponse = requests.post(\n    \"https://api.fanar.qa/v1/images/generations\",\n    headers=headers,\n    json=json_data\n)\n\ndata = response.json()\n\nimage_b64 = data[\"data\"][0][\"b64_json\"]\n\nimage_bytes = base64.b64decode(image_b64)\n\nwith open(\"generated_image.png\", \"wb\") as f:\n    f.write(image_bytes)"
 components:
   schemas:
-    ErrorCode:
+    ImageGenerationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the image generation.
+        created:
+          type: integer
+          title: Created
+          description: The timestamp of when the image was created.
+        data:
+          items:
+            $ref: '#/components/schemas/ImageGenerationItem-Output'
+          type: array
+          title: Data
+          description: A list of the generated image.
+      type: object
+      required:
+      - id
+      - created
+      - data
+      title: ImageGenerationResponse
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    ErrorContentFilterType:
       type: string
       enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
     ImageGenerationModels:
       type: string
       enum:
@@ -242,6 +293,24 @@ components:
       example:
         model: Fanar-Oryx-IG-2
         prompt: A futuristic cityscape at sunset
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
     ImageGenerationItem-Output:
       properties:
         b64_json:
@@ -262,75 +331,6 @@ components:
       - revised
       - revised_prompt
       title: ImageGenerationItem
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
-    ImageGenerationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the image generation.
-        created:
-          type: integer
-          title: Created
-          description: The timestamp of when the image was created.
-        data:
-          items:
-            $ref: '#/components/schemas/ImageGenerationItem-Output'
-          type: array
-          title: Data
-          description: A list of the generated image.
-      type: object
-      required:
-      - id
-      - created
-      - data
-      title: ImageGenerationResponse
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
   securitySchemes:
     Bearer:
       type: http

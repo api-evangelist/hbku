@@ -978,24 +978,6 @@ paths:
         source: "# Voice personalization requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/voices/{name}\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\nrequests.delete(url, headers=headers)\n"
 components:
   schemas:
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
     SpeechToTextResponseWithSRT:
       properties:
         id:
@@ -1011,194 +993,6 @@ components:
       - id
       - srt
       title: SpeechToTextResponseWithSRT
-    QuranReciters:
-      type: string
-      enum:
-      - abdul-basit
-      - maher-al-muaiqly
-      - mahmoud-al-husary
-      title: QuranReciters
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
-    SpeechToTextResponseWithJson-Output:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the speech-to-text.
-        json:
-          $ref: '#/components/schemas/SpeechToTextResponseJson'
-          description: The transcribed text in JSON format.
-      type: object
-      required:
-      - id
-      - json
-      title: SpeechToTextResponseWithJson
-    SpeechToTextResponseWithText:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the speech-to-text.
-        text:
-          type: string
-          title: Text
-          description: The transcribed text.
-      type: object
-      required:
-      - id
-      - text
-      title: SpeechToTextResponseWithText
-    VoiceResponse:
-      properties:
-        voices:
-          items:
-            $ref: '#/components/schemas/Voice'
-          type: array
-          title: Voices
-          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
-      type: object
-      required:
-      - voices
-      title: VoiceResponse
-      example:
-        voices:
-        - accent: British
-          emotion: false
-          gender: Female
-          languages:
-          - en
-          name: Amelia
-          name_ar: أميليا
-          type: public
-        - accent: Gulf
-          emotion: false
-          gender: Male
-          languages:
-          - ar
-          name: Hamad
-          name_ar: حمد
-          type: public
-        - emotion: false
-          languages: []
-          name: MyVoice
-          type: personal
-    STTSegement:
-      properties:
-        speaker:
-          type: string
-          title: Speaker
-          description: The speaker label for the segment.
-        start_time:
-          type: number
-          title: Start Time
-          description: The start time of the segment in seconds.
-        end_time:
-          type: number
-          title: End Time
-          description: The end time of the segment in seconds.
-        duration:
-          type: number
-          title: Duration
-          description: The duration of the segment in seconds.
-        text:
-          type: string
-          title: Text
-          description: The transcribed text segment.
-      type: object
-      required:
-      - speaker
-      - start_time
-      - end_time
-      - duration
-      - text
-      title: STTSegement
-    SpeechToTextResponseJson:
-      properties:
-        segments:
-          items:
-            $ref: '#/components/schemas/STTSegement'
-          type: array
-          title: Segments
-          description: The list of segments for the transcribed text.
-      type: object
-      required:
-      - segments
-      title: SpeechToTextResponseJson
-    TTSModels:
-      type: string
-      enum:
-      - Fanar-Aura-TTS-2
-      - Fanar-Sadiq-TTS-1
-      title: TTSModels
-    TTSResponseFormat:
-      type: string
-      enum:
-      - mp3
-      - wav
-      title: TTSResponseFormat
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    STTModels:
-      type: string
-      enum:
-      - Fanar-Aura-STT-1
-      - Fanar-Aura-STT-LF-1
-      title: STTModels
-    Body_create_transcription_v1_audio_transcriptions_post:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-          description: The audio blob to transcribe.
-        model:
-          $ref: '#/components/schemas/STTModels'
-          description: 'The model to use for the speech-to-text.
-
-            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
-
-            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
-        format:
-          $ref: '#/components/schemas/STTFormat'
-          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
-
-            - `text`: Plain text format.
-
-            - `srt`: SubRip Subtitle format.
-
-            - `json`: JSON format with detailed transcription data.'
-          default: text
-      type: object
-      required:
-      - file
-      - model
-      title: Body_create_transcription_v1_audio_transcriptions_post
     Voice:
       properties:
         name:
@@ -1269,6 +1063,78 @@ components:
         name: Amelia
         name_ar: أميليا
         type: public
+    TTSResponseFormat:
+      type: string
+      enum:
+      - mp3
+      - wav
+      title: TTSResponseFormat
+    SpeechToTextResponseJson:
+      properties:
+        segments:
+          items:
+            $ref: '#/components/schemas/STTSegement'
+          type: array
+          title: Segments
+          description: The list of segments for the transcribed text.
+      type: object
+      required:
+      - segments
+      title: SpeechToTextResponseJson
+    Body_create_transcription_v1_audio_transcriptions_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: The audio blob to transcribe.
+        model:
+          $ref: '#/components/schemas/STTModels'
+          description: 'The model to use for the speech-to-text.
+
+            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
+
+            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
+        format:
+          $ref: '#/components/schemas/STTFormat'
+          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
+
+            - `text`: Plain text format.
+
+            - `srt`: SubRip Subtitle format.
+
+            - `json`: JSON format with detailed transcription data.'
+          default: text
+      type: object
+      required:
+      - file
+      - model
+      title: Body_create_transcription_v1_audio_transcriptions_post
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    QuranReciters:
+      type: string
+      enum:
+      - abdul-basit
+      - maher-al-muaiqly
+      - mahmoud-al-husary
+      title: QuranReciters
     Body_create_voice_v1_audio_voices_post:
       properties:
         name:
@@ -1290,13 +1156,88 @@ components:
       - audio
       - transcript
       title: Body_create_voice_v1_audio_voices_post
-    STTFormat:
+    STTModels:
       type: string
       enum:
+      - Fanar-Aura-STT-1
+      - Fanar-Aura-STT-LF-1
+      title: STTModels
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    TTSModels:
+      type: string
+      enum:
+      - Fanar-Aura-TTS-2
+      - Fanar-Sadiq-TTS-1
+      title: TTSModels
+    STTSegement:
+      properties:
+        speaker:
+          type: string
+          title: Speaker
+          description: The speaker label for the segment.
+        start_time:
+          type: number
+          title: Start Time
+          description: The start time of the segment in seconds.
+        end_time:
+          type: number
+          title: End Time
+          description: The end time of the segment in seconds.
+        duration:
+          type: number
+          title: Duration
+          description: The duration of the segment in seconds.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text segment.
+      type: object
+      required:
+      - speaker
+      - start_time
+      - end_time
+      - duration
       - text
-      - srt
-      - json
-      title: STTFormat
+      title: STTSegement
     TextToSpeechRequest:
       properties:
         model:
@@ -1351,24 +1292,83 @@ components:
         model: Fanar-Aura-TTS-2
         input: Hello, welcome to Fanar!
         voice: Harry
-    ErrorStatus:
-      type: integer
+    ErrorContentFilterType:
+      type: string
       enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    SpeechToTextResponseWithText:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text.
+      type: object
+      required:
+      - id
+      - text
+      title: SpeechToTextResponseWithText
+    STTFormat:
+      type: string
+      enum:
+      - text
+      - srt
+      - json
+      title: STTFormat
+    VoiceResponse:
+      properties:
+        voices:
+          items:
+            $ref: '#/components/schemas/Voice'
+          type: array
+          title: Voices
+          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
+      type: object
+      required:
+      - voices
+      title: VoiceResponse
+      example:
+        voices:
+        - accent: British
+          emotion: false
+          gender: Female
+          languages:
+          - en
+          name: Amelia
+          name_ar: أميليا
+          type: public
+        - accent: Gulf
+          emotion: false
+          gender: Male
+          languages:
+          - ar
+          name: Hamad
+          name_ar: حمد
+          type: public
+        - emotion: false
+          languages: []
+          name: MyVoice
+          type: personal
+    SpeechToTextResponseWithJson-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        json:
+          $ref: '#/components/schemas/SpeechToTextResponseJson'
+          description: The transcribed text in JSON format.
+      type: object
+      required:
+      - id
+      - json
+      title: SpeechToTextResponseWithJson
   securitySchemes:
     Bearer:
       type: http

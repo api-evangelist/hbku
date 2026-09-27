@@ -192,86 +192,6 @@ paths:
         source: "# Translation requires additional authorization and is not allowed by default.\n\nimport requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Shaheen-MT-1\",\n    \"text\": \"مرحبا بك في عالم الذكاء الاصطناعي!\",\n    \"langpair\": \"ar-en\",\n    \"preprocessing\": \"default\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/translations\", headers=headers, json=json_data)\n\nprint(response.json())"
 components:
   schemas:
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    TranslationModels:
-      type: string
-      enum:
-      - Fanar-Shaheen-MT-1
-      title: TranslationModels
-    TranslationPreprocessing:
-      type: string
-      enum:
-      - default
-      - preserve_html
-      - preserve_whitespace
-      - preserve_whitespace_and_html
-      title: TranslationPreprocessing
-    TranslationLangPairs:
-      type: string
-      enum:
-      - en-ar
-      - ar-en
-      title: TranslationLangPairs
-    TranslationRequest:
-      properties:
-        model:
-          $ref: '#/components/schemas/TranslationModels'
-          description: The model to use for the translation.
-        text:
-          type: string
-          title: Text
-          description: The text to translate. It must not exceed 4,000 words.
-        langpair:
-          $ref: '#/components/schemas/TranslationLangPairs'
-          description: 'The source-target language pair for translation, the current allowed possible values are:<br/>- <b>en-ar</b>: for English to Arabic<br/>- <b>ar-en</b>: for Arabic to English'
-        preprocessing:
-          anyOf:
-          - $ref: '#/components/schemas/TranslationPreprocessing'
-          - type: 'null'
-          description: 'How to preprocess the text before translation:<br/>- <b>default</b>: Splits all sentences by natural punctuation (full stops, question marks, etc.), trims away extra whitespace, and removes HTML tags.<br/>- <b>preserve_html</b>: Does the same as “default”, but tries to preserve HTML tags.<br/>- <b>preserve_whitespace</b>: Aggressively tries to maintain all extra leading/trailing whitespaces and joins sentences across newlines to translate fixed-width content, for example.<br/>- <b>preserve_whitespace_and_html</b>: Combines the previous two.'
-          default: default
-      type: object
-      required:
-      - model
-      - text
-      - langpair
-      title: TranslationRequest
-      example:
-        model: Fanar-Shaheen-MT-1
-        text: Hello, how are you?
-        langpair: en-ar
-    TranslationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the translation.
-        text:
-          type: string
-          title: Text
-          description: The translated text
-      type: object
-      required:
-      - id
-      - text
-      title: TranslationResponse
     Error:
       properties:
         code:
@@ -319,6 +239,86 @@ components:
       - 410
       - 499
       title: ErrorStatus
+    TranslationRequest:
+      properties:
+        model:
+          $ref: '#/components/schemas/TranslationModels'
+          description: The model to use for the translation.
+        text:
+          type: string
+          title: Text
+          description: The text to translate. It must not exceed 4,000 words.
+        langpair:
+          $ref: '#/components/schemas/TranslationLangPairs'
+          description: 'The source-target language pair for translation, the current allowed possible values are:<br/>- <b>en-ar</b>: for English to Arabic<br/>- <b>ar-en</b>: for Arabic to English'
+        preprocessing:
+          anyOf:
+          - $ref: '#/components/schemas/TranslationPreprocessing'
+          - type: 'null'
+          description: 'How to preprocess the text before translation:<br/>- <b>default</b>: Splits all sentences by natural punctuation (full stops, question marks, etc.), trims away extra whitespace, and removes HTML tags.<br/>- <b>preserve_html</b>: Does the same as “default”, but tries to preserve HTML tags.<br/>- <b>preserve_whitespace</b>: Aggressively tries to maintain all extra leading/trailing whitespaces and joins sentences across newlines to translate fixed-width content, for example.<br/>- <b>preserve_whitespace_and_html</b>: Combines the previous two.'
+          default: default
+      type: object
+      required:
+      - model
+      - text
+      - langpair
+      title: TranslationRequest
+      example:
+        model: Fanar-Shaheen-MT-1
+        text: Hello, how are you?
+        langpair: en-ar
+    TranslationPreprocessing:
+      type: string
+      enum:
+      - default
+      - preserve_html
+      - preserve_whitespace
+      - preserve_whitespace_and_html
+      title: TranslationPreprocessing
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    TranslationModels:
+      type: string
+      enum:
+      - Fanar-Shaheen-MT-1
+      title: TranslationModels
+    TranslationLangPairs:
+      type: string
+      enum:
+      - en-ar
+      - ar-en
+      title: TranslationLangPairs
+    TranslationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the translation.
+        text:
+          type: string
+          title: Text
+          description: The translated text
+      type: object
+      required:
+      - id
+      - text
+      title: TranslationResponse
   securitySchemes:
     Bearer:
       type: http

@@ -194,44 +194,6 @@ paths:
         source: "# Poem generation requires additional authorization and is not allowed by default.\n\nimport requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Diwan\",\n    \"prompt\": \"Your text here\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/poems/generations\", headers=headers, json=json_data)\n\nprint(response.json())"
 components:
   schemas:
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    PoemGenerationModels:
-      type: string
-      enum:
-      - Fanar-Diwan
-      title: PoemGenerationModels
-    PoemGenerationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the poem generation.
-        poem:
-          type: string
-          title: Poem
-          description: The generated poem.
-      type: object
-      required:
-      - id
-      - poem
-      title: PoemGenerationResponse
     Error:
       properties:
         code:
@@ -261,23 +223,6 @@ components:
       - blocklist
       - incomplete
       title: ErrorContentFilterType
-    PoemGenerationRequest:
-      properties:
-        model:
-          $ref: '#/components/schemas/PoemGenerationModels'
-          description: The model to use for the poem generation.
-        prompt:
-          type: string
-          title: Prompt
-          description: A text description of the desired poem.
-      type: object
-      required:
-      - model
-      - prompt
-      title: PoemGenerationRequest
-      example:
-        model: Fanar-Diwan
-        prompt: Write a poem about the sea
     ErrorStatus:
       type: integer
       enum:
@@ -296,6 +241,61 @@ components:
       - 410
       - 499
       title: ErrorStatus
+    PoemGenerationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the poem generation.
+        poem:
+          type: string
+          title: Poem
+          description: The generated poem.
+      type: object
+      required:
+      - id
+      - poem
+      title: PoemGenerationResponse
+    PoemGenerationRequest:
+      properties:
+        model:
+          $ref: '#/components/schemas/PoemGenerationModels'
+          description: The model to use for the poem generation.
+        prompt:
+          type: string
+          title: Prompt
+          description: A text description of the desired poem.
+      type: object
+      required:
+      - model
+      - prompt
+      title: PoemGenerationRequest
+      example:
+        model: Fanar-Diwan
+        prompt: Write a poem about the sea
+    PoemGenerationModels:
+      type: string
+      enum:
+      - Fanar-Diwan
+      title: PoemGenerationModels
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
   securitySchemes:
     Bearer:
       type: http

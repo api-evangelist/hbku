@@ -178,71 +178,6 @@ paths:
         source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"content\": \"Your text content here\",\n    \"model\": \"Fanar-C-1-8.7B\"\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/tokens\", headers=headers, json=json_data)\n\nprint(response.json())"
 components:
   schemas:
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    LLM:
-      type: string
-      enum:
-      - Fanar-S-1-7B
-      - Fanar-C-1-8.7B
-      - Fanar-C-2-27B
-      title: LLM
-    TokenizationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the tokenization.
-        tokens:
-          type: integer
-          title: Tokens
-        max_request_tokens:
-          type: integer
-          title: Max Request Tokens
-      type: object
-      required:
-      - id
-      - tokens
-      - max_request_tokens
-      title: TokenizationResponse
-    TokenizationRequest:
-      properties:
-        content:
-          type: string
-          title: Content
-        model:
-          $ref: '#/components/schemas/LLM'
-      type: object
-      required:
-      - content
-      - model
-      title: TokenizationRequest
-      example:
-        content: Hello, how are you?
-        model: Fanar-S-1-7B
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
     Error:
       properties:
         code:
@@ -265,6 +200,13 @@ components:
           - type: 'null'
       type: object
       title: Error
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
     ErrorStatus:
       type: integer
       enum:
@@ -283,6 +225,64 @@ components:
       - 410
       - 499
       title: ErrorStatus
+    TokenizationRequest:
+      properties:
+        content:
+          type: string
+          title: Content
+        model:
+          $ref: '#/components/schemas/LLM'
+      type: object
+      required:
+      - content
+      - model
+      title: TokenizationRequest
+      example:
+        content: Hello, how are you?
+        model: Fanar-S-1-7B
+    TokenizationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the tokenization.
+        tokens:
+          type: integer
+          title: Tokens
+        max_request_tokens:
+          type: integer
+          title: Max Request Tokens
+      type: object
+      required:
+      - id
+      - tokens
+      - max_request_tokens
+      title: TokenizationResponse
+    LLM:
+      type: string
+      enum:
+      - Fanar-S-1-7B
+      - Fanar-C-1-8.7B
+      - Fanar-C-2-27B
+      title: LLM
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
   securitySchemes:
     Bearer:
       type: http
