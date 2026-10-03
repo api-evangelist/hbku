@@ -194,6 +194,33 @@ paths:
         source: "# Poem generation requires additional authorization and is not allowed by default.\n\nimport requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Diwan\",\n    \"prompt\": \"Your text here\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/poems/generations\", headers=headers, json=json_data)\n\nprint(response.json())"
 components:
   schemas:
+    PoemGenerationModels:
+      type: string
+      enum:
+      - Fanar-Diwan
+      title: PoemGenerationModels
+    PoemGenerationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the poem generation.
+        poem:
+          type: string
+          title: Poem
+          description: The generated poem.
+      type: object
+      required:
+      - id
+      - poem
+      title: PoemGenerationResponse
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
     Error:
       properties:
         code:
@@ -216,46 +243,6 @@ components:
           - type: 'null'
       type: object
       title: Error
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
-    PoemGenerationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the poem generation.
-        poem:
-          type: string
-          title: Poem
-          description: The generated poem.
-      type: object
-      required:
-      - id
-      - poem
-      title: PoemGenerationResponse
     PoemGenerationRequest:
       properties:
         model:
@@ -273,11 +260,6 @@ components:
       example:
         model: Fanar-Diwan
         prompt: Write a poem about the sea
-    PoemGenerationModels:
-      type: string
-      enum:
-      - Fanar-Diwan
-      title: PoemGenerationModels
     ErrorCode:
       type: string
       enum:
@@ -296,6 +278,24 @@ components:
       - no_longer_supported
       - client_closed_request
       title: ErrorCode
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
   securitySchemes:
     Bearer:
       type: http

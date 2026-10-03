@@ -192,6 +192,34 @@ paths:
         source: "# Translation requires additional authorization and is not allowed by default.\n\nimport requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Shaheen-MT-1\",\n    \"text\": \"مرحبا بك في عالم الذكاء الاصطناعي!\",\n    \"langpair\": \"ar-en\",\n    \"preprocessing\": \"default\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/translations\", headers=headers, json=json_data)\n\nprint(response.json())"
 components:
   schemas:
+    TranslationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the translation.
+        text:
+          type: string
+          title: Text
+          description: The translated text
+      type: object
+      required:
+      - id
+      - text
+      title: TranslationResponse
+    TranslationLangPairs:
+      type: string
+      enum:
+      - en-ar
+      - ar-en
+      title: TranslationLangPairs
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
     Error:
       properties:
         code:
@@ -214,13 +242,24 @@ components:
           - type: 'null'
       type: object
       title: Error
-    ErrorContentFilterType:
+    ErrorCode:
       type: string
       enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
     ErrorStatus:
       type: integer
       enum:
@@ -275,50 +314,11 @@ components:
       - preserve_whitespace
       - preserve_whitespace_and_html
       title: TranslationPreprocessing
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
     TranslationModels:
       type: string
       enum:
       - Fanar-Shaheen-MT-1
       title: TranslationModels
-    TranslationLangPairs:
-      type: string
-      enum:
-      - en-ar
-      - ar-en
-      title: TranslationLangPairs
-    TranslationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the translation.
-        text:
-          type: string
-          title: Text
-          description: The translated text
-      type: object
-      required:
-      - id
-      - text
-      title: TranslationResponse
   securitySchemes:
     Bearer:
       type: http

@@ -186,53 +186,6 @@ paths:
         source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\nresponse = requests.get(\"https://api.fanar.qa/v1/models\", headers=headers)\n\nprint(response.json())"
 components:
   schemas:
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
     AvailableModel:
       properties:
         id:
@@ -257,23 +210,35 @@ components:
       - created
       - owned_by
       title: AvailableModel
-    ModelsResponse:
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    Error:
       properties:
-        id:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
           type: string
-          title: Id
-          description: A unique identifier for the models.
-        models:
-          items:
-            $ref: '#/components/schemas/AvailableModel'
-          type: array
-          title: Models
-          description: The available models.
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
       type: object
-      required:
-      - id
-      - models
-      title: ModelsResponse
+      title: Error
     ErrorCode:
       type: string
       enum:
@@ -292,6 +257,41 @@ components:
       - no_longer_supported
       - client_closed_request
       title: ErrorCode
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    ModelsResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the models.
+        models:
+          items:
+            $ref: '#/components/schemas/AvailableModel'
+          type: array
+          title: Models
+          description: The available models.
+      type: object
+      required:
+      - id
+      - models
+      title: ModelsResponse
     ModelObject:
       type: string
       enum:
