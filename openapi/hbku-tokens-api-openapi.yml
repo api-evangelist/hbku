@@ -193,13 +193,6 @@ components:
       example:
         content: Hello, how are you?
         model: Fanar-S-1-7B
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
     Error:
       properties:
         code:
@@ -222,49 +215,6 @@ components:
           - type: 'null'
       type: object
       title: Error
-    LLM:
-      type: string
-      enum:
-      - Fanar-S-1-7B
-      - Fanar-C-1-8.7B
-      - Fanar-C-2-27B
-      title: LLM
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
     TokenizationResponse:
       properties:
         id:
@@ -283,6 +233,56 @@ components:
       - tokens
       - max_request_tokens
       title: TokenizationResponse
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    LLM:
+      type: string
+      enum:
+      - Fanar-S-1-7B
+      - Fanar-C-1-8.7B
+      - Fanar-C-2-27B
+      title: LLM
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
   securitySchemes:
     Bearer:
       type: http

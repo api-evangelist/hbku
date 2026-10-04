@@ -181,28 +181,6 @@ paths:
         source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Guard-2\",\n    \"prompt\": \"Your prompt here\",\n    \"response\": \"Response from the model here\",\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/moderations\", headers=headers, json=json_data)\n\nprint(response.json())  # Print the safety and cultural awareness scores"
 components:
   schemas:
-    SafetyFilterResponse:
-      properties:
-        safety:
-          type: number
-          title: Safety
-          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
-        cultural_awareness:
-          type: number
-          title: Cultural Awareness
-          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
-      type: object
-      required:
-      - safety
-      - cultural_awareness
-      title: SafetyFilterResponse
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
     Error:
       properties:
         code:
@@ -225,47 +203,6 @@ components:
           - type: 'null'
       type: object
       title: Error
-    ModerationModels:
-      type: string
-      enum:
-      - Fanar-Guard-2
-      title: ModerationModels
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
     SafetyFilterRequest:
       properties:
         model:
@@ -289,6 +226,69 @@ components:
         model: Fanar-Guard-2
         prompt: What is the weather?
         response: The weather is sunny today.
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    ModerationModels:
+      type: string
+      enum:
+      - Fanar-Guard-2
+      title: ModerationModels
+    SafetyFilterResponse:
+      properties:
+        safety:
+          type: number
+          title: Safety
+          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
+        cultural_awareness:
+          type: number
+          title: Cultural Awareness
+          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
+      type: object
+      required:
+      - safety
+      - cultural_awareness
+      title: SafetyFilterResponse
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
   securitySchemes:
     Bearer:
       type: http

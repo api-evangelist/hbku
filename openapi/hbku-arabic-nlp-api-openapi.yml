@@ -96,6 +96,13 @@ paths:
           $ref: '#/components/responses/BadRequest'
 components:
   responses:
+    FarasaResult:
+      description: Processed Arabic text. The exact payload shape is NOT documented by the provider and was not observed here — a registered api_key is required to reach a 200 — so no schema is asserted.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Provider-defined JSON result. Shape unverified; see x-provenance.
     BadRequest:
       description: 'Rejected request. Observed forms, both returned as HTTP 400 with a text/plain body: "invalid api key. please register at: https://farasa.qcri.org" and "Unsupported content_type, use application/json or application/x-www-form-urlencoded".'
       content:
@@ -107,13 +114,6 @@ components:
               value: 'invalid api key. please register at: https://farasa.qcri.org'
             badContentType:
               value: Unsupported content_type, use application/json or application/x-www-form-urlencoded
-    FarasaResult:
-      description: Processed Arabic text. The exact payload shape is NOT documented by the provider and was not observed here — a registered api_key is required to reach a 200 — so no schema is asserted.
-      content:
-        application/json:
-          schema:
-            type: object
-            description: Provider-defined JSON result. Shape unverified; see x-provenance.
   schemas:
     FarasaRequest:
       type: object

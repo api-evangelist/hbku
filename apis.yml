@@ -263,54 +263,6 @@ apis:
     url: https://farasa.qcri.org/
   - type: Examples
     url: examples/hbku-farasa-invalid-key-example.json
-- aid: hbku:hbku-chat-api
-  name: Hamad Bin Khalifa University Chat API
-  description: The Chat API from Hamad Bin Khalifa University — 1 operation(s) for chat.
-  humanURL: https://api.fanar.qa/docs
-  baseURL: https://api.fanar.qa
-  tags:
-  - Chat
-  properties:
-  - type: OpenAPI
-    url: openapi/hbku-chat-api-openapi.yml
-  - type: APIReference
-    url: https://api.fanar.qa/docs
-  - type: Documentation
-    url: https://fanar.qa/en
-  - type: SignUp
-    url: https://api.fanar.qa/request/en
-  - type: TermsOfService
-    url: https://fanar.qa/en/terms-of-services
-  - type: PrivacyPolicy
-    url: https://fanar.qa/en/privacy-policy
-  - type: ReleaseNotes
-    url: https://fanar.qa/en/2-0-release-notes
-  - type: Authentication
-    url: authentication/hbku-authentication.yml
-  - type: ErrorCatalog
-    url: errors/hbku-fanar-errors.yml
-  - type: RateLimits
-    url: rate-limits/hbku-rate-limits.yml
-  - type: JSONSchema
-    url: json-schema/hbku-fanar-error-schema.json
-  - type: JSONSchema
-    url: json-schema/hbku-fanar-models-response-schema.json
-  - type: Examples
-    url: examples/hbku-fanar-models-401-example.json
-  - type: Examples
-    url: examples/hbku-fanar-chat-completion-example.json
-  - type: Lifecycle
-    url: lifecycle/hbku-lifecycle.yml
-  - type: SourceCode
-    url: https://huggingface.co/QCRI
-  - type: Documentation
-    url: https://farasa.qcri.org/
-  - type: Reference
-    url: https://alt.qcri.org/farasa/
-  - type: SignUp
-    url: https://farasa.qcri.org/
-  - type: Examples
-    url: examples/hbku-farasa-invalid-key-example.json
 - aid: hbku:hbku-images-api
   name: Hamad Bin Khalifa University Images API
   description: The Images API from Hamad Bin Khalifa University — 1 operation(s) for images.
@@ -566,6 +518,55 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/hbku-translations-api-openapi.yml
+  - type: APIReference
+    url: https://api.fanar.qa/docs
+  - type: Documentation
+    url: https://fanar.qa/en
+  - type: SignUp
+    url: https://api.fanar.qa/request/en
+  - type: TermsOfService
+    url: https://fanar.qa/en/terms-of-services
+  - type: PrivacyPolicy
+    url: https://fanar.qa/en/privacy-policy
+  - type: ReleaseNotes
+    url: https://fanar.qa/en/2-0-release-notes
+  - type: Authentication
+    url: authentication/hbku-authentication.yml
+  - type: ErrorCatalog
+    url: errors/hbku-fanar-errors.yml
+  - type: RateLimits
+    url: rate-limits/hbku-rate-limits.yml
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-error-schema.json
+  - type: JSONSchema
+    url: json-schema/hbku-fanar-models-response-schema.json
+  - type: Examples
+    url: examples/hbku-fanar-models-401-example.json
+  - type: Examples
+    url: examples/hbku-fanar-chat-completion-example.json
+  - type: Lifecycle
+    url: lifecycle/hbku-lifecycle.yml
+  - type: SourceCode
+    url: https://huggingface.co/QCRI
+  - type: Documentation
+    url: https://farasa.qcri.org/
+  - type: Reference
+    url: https://alt.qcri.org/farasa/
+  - type: SignUp
+    url: https://farasa.qcri.org/
+  - type: Examples
+    url: examples/hbku-farasa-invalid-key-example.json
+- aid: hbku:hbku-chat-completions-api
+  name: Hamad Bin Khalifa University Chat Completions API
+  description: >-
+    The Chat Completions API from Hamad Bin Khalifa University — 1 operation(s) for chat completions.
+  humanURL: https://elmi.hbku.edu.qa/
+  baseURL: https://elmi.hbku.edu.qa/ws/oai
+  tags:
+  - Chat Completions
+  properties:
+  - type: OpenAPI
+    url: openapi/hbku-chat-completions-api-openapi.yml
   - type: APIReference
     url: https://api.fanar.qa/docs
   - type: Documentation

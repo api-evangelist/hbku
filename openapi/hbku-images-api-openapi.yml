@@ -197,18 +197,26 @@ paths:
         source: "# Image Generation requires additional authorization and is not allowed by default.\n\nimport requests\nimport base64\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Oryx-IG-2\",\n    \"prompt\": \"A serene sunset over a mountain lake with reflections of colorful clouds and pine trees\"\n}\n\nresponse = requests.post(\n    \"https://api.fanar.qa/v1/images/generations\",\n    headers=headers,\n    json=json_data\n)\n\ndata = response.json()\n\nimage_b64 = data[\"data\"][0][\"b64_json\"]\n\nimage_bytes = base64.b64decode(image_b64)\n\nwith open(\"generated_image.png\", \"wb\") as f:\n    f.write(image_bytes)"
 components:
   schemas:
-    ImageGenerationModels:
-      type: string
-      enum:
-      - Fanar-Oryx-IG-2
-      title: ImageGenerationModels
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
+    ImageGenerationItem-Output:
+      properties:
+        b64_json:
+          type: string
+          title: B64 Json
+          description: The base64-encoded JSON of the generated image.
+        revised:
+          type: boolean
+          title: Revised
+          description: Indicates whether the prompt was revised before generation.
+        revised_prompt:
+          type: string
+          title: Revised Prompt
+          description: The prompt used for generation, which may be revised from the original prompt.
+      type: object
+      required:
+      - b64_json
+      - revised
+      - revised_prompt
+      title: ImageGenerationItem
     Error:
       properties:
         code:
@@ -231,6 +239,13 @@ components:
           - type: 'null'
       type: object
       title: Error
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
     ImageGenerationRequest:
       properties:
         model:
@@ -253,6 +268,11 @@ components:
       example:
         model: Fanar-Oryx-IG-2
         prompt: A futuristic cityscape at sunset
+    ImageGenerationModels:
+      type: string
+      enum:
+      - Fanar-Oryx-IG-2
+      title: ImageGenerationModels
     ErrorCode:
       type: string
       enum:
@@ -271,26 +291,6 @@ components:
       - no_longer_supported
       - client_closed_request
       title: ErrorCode
-    ImageGenerationItem-Output:
-      properties:
-        b64_json:
-          type: string
-          title: B64 Json
-          description: The base64-encoded JSON of the generated image.
-        revised:
-          type: boolean
-          title: Revised
-          description: Indicates whether the prompt was revised before generation.
-        revised_prompt:
-          type: string
-          title: Revised Prompt
-          description: The prompt used for generation, which may be revised from the original prompt.
-      type: object
-      required:
-      - b64_json
-      - revised
-      - revised_prompt
-      title: ImageGenerationItem
     ErrorStatus:
       type: integer
       enum:
