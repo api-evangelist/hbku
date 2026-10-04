@@ -49,6 +49,9 @@ position: Producing
 access: 1st-Party
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/hbku.png
 url: https://raw.githubusercontent.com/api-evangelist/hbku/refs/heads/main/apis.yml
+x-docs-platform: scalar
+x-docs-platform-confidence: medium
+x-docs-platform-checked: 2026-10-03
 tags:
   - University
   - Higher Education
