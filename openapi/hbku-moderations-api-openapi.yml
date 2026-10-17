@@ -203,6 +203,26 @@ components:
           - type: 'null'
       type: object
       title: Error
+    ModerationModels:
+      type: string
+      enum:
+      - Fanar-Guard-2
+      title: ModerationModels
+    SafetyFilterResponse:
+      properties:
+        safety:
+          type: number
+          title: Safety
+          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
+        cultural_awareness:
+          type: number
+          title: Cultural Awareness
+          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
+      type: object
+      required:
+      - safety
+      - cultural_awareness
+      title: SafetyFilterResponse
     SafetyFilterRequest:
       properties:
         model:
@@ -226,13 +246,6 @@ components:
         model: Fanar-Guard-2
         prompt: What is the weather?
         response: The weather is sunny today.
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
     ErrorCode:
       type: string
       enum:
@@ -251,26 +264,6 @@ components:
       - no_longer_supported
       - client_closed_request
       title: ErrorCode
-    ModerationModels:
-      type: string
-      enum:
-      - Fanar-Guard-2
-      title: ModerationModels
-    SafetyFilterResponse:
-      properties:
-        safety:
-          type: number
-          title: Safety
-          description: The safety score for general safety aspects such as toxicity, violence, self-harm, etc.
-        cultural_awareness:
-          type: number
-          title: Cultural Awareness
-          description: The cultural awareness score for aspects such as stereotypes, insensitive content, and bias.
-      type: object
-      required:
-      - safety
-      - cultural_awareness
-      title: SafetyFilterResponse
     ErrorStatus:
       type: integer
       enum:
@@ -289,6 +282,13 @@ components:
       - 410
       - 499
       title: ErrorStatus
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
   securitySchemes:
     Bearer:
       type: http

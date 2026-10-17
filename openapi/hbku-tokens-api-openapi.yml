@@ -178,21 +178,6 @@ paths:
         source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"content\": \"Your text content here\",\n    \"model\": \"Fanar-C-1-8.7B\"\n}\n\nresponse = requests.post(\"https://api.fanar.qa/v1/tokens\", headers=headers, json=json_data)\n\nprint(response.json())"
 components:
   schemas:
-    TokenizationRequest:
-      properties:
-        content:
-          type: string
-          title: Content
-        model:
-          $ref: '#/components/schemas/LLM'
-      type: object
-      required:
-      - content
-      - model
-      title: TokenizationRequest
-      example:
-        content: Hello, how are you?
-        model: Fanar-S-1-7B
     Error:
       properties:
         code:
@@ -215,6 +200,21 @@ components:
           - type: 'null'
       type: object
       title: Error
+    TokenizationRequest:
+      properties:
+        content:
+          type: string
+          title: Content
+        model:
+          $ref: '#/components/schemas/LLM'
+      type: object
+      required:
+      - content
+      - model
+      title: TokenizationRequest
+      example:
+        content: Hello, how are you?
+        model: Fanar-S-1-7B
     TokenizationResponse:
       properties:
         id:
@@ -233,13 +233,6 @@ components:
       - tokens
       - max_request_tokens
       title: TokenizationResponse
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
     ErrorCode:
       type: string
       enum:
@@ -283,6 +276,13 @@ components:
       - 410
       - 499
       title: ErrorStatus
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
   securitySchemes:
     Bearer:
       type: http

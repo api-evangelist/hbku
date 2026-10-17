@@ -978,6 +978,258 @@ paths:
         source: "# Voice personalization requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/voices/{name}\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\nrequests.delete(url, headers=headers)\n"
 components:
   schemas:
+    QuranReciters:
+      type: string
+      enum:
+      - abdul-basit
+      - maher-al-muaiqly
+      - mahmoud-al-husary
+      title: QuranReciters
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    TTSModels:
+      type: string
+      enum:
+      - Fanar-Aura-TTS-2
+      - Fanar-Sadiq-TTS-1
+      title: TTSModels
+    SpeechToTextResponseWithJson-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        json:
+          $ref: '#/components/schemas/SpeechToTextResponseJson'
+          description: The transcribed text in JSON format.
+      type: object
+      required:
+      - id
+      - json
+      title: SpeechToTextResponseWithJson
+    TextToSpeechRequest:
+      properties:
+        model:
+          $ref: '#/components/schemas/TTSModels'
+          description: The model to use for the text-to-speech.
+        input:
+          type: string
+          title: Input
+          description: The text to generate audio for.
+        voice:
+          type: string
+          title: Voice
+          description: 'The voice to use for the text-to-speech. Details are below:
+
+            <table style="min-width:600px"><thead><tr><th nowrap width="160">Voice</th><th nowrap width="80">Gender</th><th nowrap width="180">Supported Languages</th><th nowrap width="100">Accent</th><th nowrap width="80">Emotion</th></tr></thead><tbody><tr><td nowrap>Abdulrahman</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Abdulrahman">Arabic</a></td><td nowrap>Standard</td><td nowrap>✓</td></tr><tr><td nowrap>Amelia</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Amelia">English</a></td><td nowrap>British</td><td nowrap>—</td></tr><tr><td nowrap>Emily</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Emily">English</a></td><td nowrap>American</td><td nowrap>—</td></tr><tr><td nowrap>Hamad</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Hamad">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Harry</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Harry">English</a></td><td nowrap>British</td><td nowrap>—</td></tr><tr><td nowrap>Huda</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Huda">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Jake</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Jake">English</a></td><td nowrap>American</td><td nowrap>—</td></tr><tr><td nowrap>Jasim</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Jasim">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Noor</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Noor">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Radwa</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Radwa">Arabic</a></td><td nowrap>Standard</td><td nowrap>✓</td></tr></tbody></table>'
+          enum:
+          - Abdulrahman
+          - Amelia
+          - Emily
+          - Hamad
+          - Harry
+          - Huda
+          - Jake
+          - Jasim
+          - Noor
+          - Radwa
+        response_format:
+          $ref: '#/components/schemas/TTSResponseFormat'
+          description: The format of the output audio. Supported formats are `mp3` and `wav`.
+          default: mp3
+        quran_reciter:
+          $ref: '#/components/schemas/QuranReciters'
+          description: The Quran reciter to use when using Fanar-Sadiq-TTS-1 model for Quranic text.
+          default: abdul-basit
+        with_emotion:
+          type: boolean
+          title: With Emotion
+          description: 'Enable emotional speech synthesis. **Only applicable to `Fanar-Aura-TTS-2` and to voices where `emotion: true` in GET /v1/voices.** When the selected voice does not support emotion, or when used with `Fanar-Sadiq-TTS-1`, the request is rejected with a 422 error. Defaults to false.'
+          default: false
+        stream:
+          type: boolean
+          title: Stream
+          description: Stream the audio as it is generated. Supported for both `wav` and `mp3`.
+          default: false
+      type: object
+      required:
+      - model
+      - input
+      - voice
+      title: TextToSpeechRequest
+      example:
+        model: Fanar-Aura-TTS-2
+        input: Hello, welcome to Fanar!
+        voice: Harry
+    VoiceResponse:
+      properties:
+        voices:
+          items:
+            $ref: '#/components/schemas/Voice'
+          type: array
+          title: Voices
+          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
+      type: object
+      required:
+      - voices
+      title: VoiceResponse
+      example:
+        voices:
+        - accent: British
+          emotion: false
+          gender: Female
+          languages:
+          - en
+          name: Amelia
+          name_ar: أميليا
+          type: public
+        - accent: Gulf
+          emotion: false
+          gender: Male
+          languages:
+          - ar
+          name: Hamad
+          name_ar: حمد
+          type: public
+        - emotion: false
+          languages: []
+          name: MyVoice
+          type: personal
+    Body_create_transcription_v1_audio_transcriptions_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: The audio blob to transcribe.
+        model:
+          $ref: '#/components/schemas/STTModels'
+          description: 'The model to use for the speech-to-text.
+
+            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
+
+            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
+        format:
+          $ref: '#/components/schemas/STTFormat'
+          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
+
+            - `text`: Plain text format.
+
+            - `srt`: SubRip Subtitle format.
+
+            - `json`: JSON format with detailed transcription data.'
+          default: text
+      type: object
+      required:
+      - file
+      - model
+      title: Body_create_transcription_v1_audio_transcriptions_post
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    STTFormat:
+      type: string
+      enum:
+      - text
+      - srt
+      - json
+      title: STTFormat
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    SpeechToTextResponseWithSRT:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        srt:
+          type: string
+          title: Srt
+          description: The transcribed text in SRT format.
+      type: object
+      required:
+      - id
+      - srt
+      title: SpeechToTextResponseWithSRT
+    Body_create_voice_v1_audio_voices_post:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the personalized voice to be created.
+        audio:
+          type: string
+          format: binary
+          title: Audio
+          description: The audio sample to create the personalized voice. Only WAV format is accepted.
+        transcript:
+          type: string
+          title: Transcript
+          description: The transcript of the audio sample.
+      type: object
+      required:
+      - name
+      - audio
+      - transcript
+      title: Body_create_voice_v1_audio_voices_post
     STTSegement:
       properties:
         speaker:
@@ -1008,6 +1260,27 @@ components:
       - duration
       - text
       title: STTSegement
+    TTSResponseFormat:
+      type: string
+      enum:
+      - mp3
+      - wav
+      title: TTSResponseFormat
+    SpeechToTextResponseWithText:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text.
+      type: object
+      required:
+      - id
+      - text
+      title: SpeechToTextResponseWithText
     SpeechToTextResponseJson:
       properties:
         segments:
@@ -1020,35 +1293,12 @@ components:
       required:
       - segments
       title: SpeechToTextResponseJson
-    Body_create_transcription_v1_audio_transcriptions_post:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-          description: The audio blob to transcribe.
-        model:
-          $ref: '#/components/schemas/STTModels'
-          description: 'The model to use for the speech-to-text.
-
-            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
-
-            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
-        format:
-          $ref: '#/components/schemas/STTFormat'
-          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
-
-            - `text`: Plain text format.
-
-            - `srt`: SubRip Subtitle format.
-
-            - `json`: JSON format with detailed transcription data.'
-          default: text
-      type: object
-      required:
-      - file
-      - model
-      title: Body_create_transcription_v1_audio_transcriptions_post
+    STTModels:
+      type: string
+      enum:
+      - Fanar-Aura-STT-1
+      - Fanar-Aura-STT-LF-1
+      title: STTModels
     Voice:
       properties:
         name:
@@ -1119,256 +1369,6 @@ components:
         name: Amelia
         name_ar: أميليا
         type: public
-    TTSModels:
-      type: string
-      enum:
-      - Fanar-Aura-TTS-2
-      - Fanar-Sadiq-TTS-1
-      title: TTSModels
-    STTFormat:
-      type: string
-      enum:
-      - text
-      - srt
-      - json
-      title: STTFormat
-    SpeechToTextResponseWithJson-Output:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the speech-to-text.
-        json:
-          $ref: '#/components/schemas/SpeechToTextResponseJson'
-          description: The transcribed text in JSON format.
-      type: object
-      required:
-      - id
-      - json
-      title: SpeechToTextResponseWithJson
-    STTModels:
-      type: string
-      enum:
-      - Fanar-Aura-STT-1
-      - Fanar-Aura-STT-LF-1
-      title: STTModels
-    SpeechToTextResponseWithSRT:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the speech-to-text.
-        srt:
-          type: string
-          title: Srt
-          description: The transcribed text in SRT format.
-      type: object
-      required:
-      - id
-      - srt
-      title: SpeechToTextResponseWithSRT
-    TextToSpeechRequest:
-      properties:
-        model:
-          $ref: '#/components/schemas/TTSModels'
-          description: The model to use for the text-to-speech.
-        input:
-          type: string
-          title: Input
-          description: The text to generate audio for.
-        voice:
-          type: string
-          title: Voice
-          description: 'The voice to use for the text-to-speech. Details are below:
-
-            <table style="min-width:600px"><thead><tr><th nowrap width="160">Voice</th><th nowrap width="80">Gender</th><th nowrap width="180">Supported Languages</th><th nowrap width="100">Accent</th><th nowrap width="80">Emotion</th></tr></thead><tbody><tr><td nowrap>Abdulrahman</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Abdulrahman">Arabic</a></td><td nowrap>Standard</td><td nowrap>✓</td></tr><tr><td nowrap>Amelia</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Amelia">English</a></td><td nowrap>British</td><td nowrap>—</td></tr><tr><td nowrap>Emily</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Emily">English</a></td><td nowrap>American</td><td nowrap>—</td></tr><tr><td nowrap>Hamad</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Hamad">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Harry</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Harry">English</a></td><td nowrap>British</td><td nowrap>—</td></tr><tr><td nowrap>Huda</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Huda">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Jake</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/en/Jake">English</a></td><td nowrap>American</td><td nowrap>—</td></tr><tr><td nowrap>Jasim</td><td nowrap>Male</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Jasim">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Noor</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Noor">Arabic</a></td><td nowrap>Standard</td><td nowrap>—</td></tr><tr><td nowrap>Radwa</td><td nowrap>Female</td><td><a href="https://chat.fanar.qa/api/sample-voices/ar/Radwa">Arabic</a></td><td nowrap>Standard</td><td nowrap>✓</td></tr></tbody></table>'
-          enum:
-          - Abdulrahman
-          - Amelia
-          - Emily
-          - Hamad
-          - Harry
-          - Huda
-          - Jake
-          - Jasim
-          - Noor
-          - Radwa
-        response_format:
-          $ref: '#/components/schemas/TTSResponseFormat'
-          description: The format of the output audio. Supported formats are `mp3` and `wav`.
-          default: mp3
-        quran_reciter:
-          $ref: '#/components/schemas/QuranReciters'
-          description: The Quran reciter to use when using Fanar-Sadiq-TTS-1 model for Quranic text.
-          default: abdul-basit
-        with_emotion:
-          type: boolean
-          title: With Emotion
-          description: 'Enable emotional speech synthesis. **Only applicable to `Fanar-Aura-TTS-2` and to voices where `emotion: true` in GET /v1/voices.** When the selected voice does not support emotion, or when used with `Fanar-Sadiq-TTS-1`, the request is rejected with a 422 error. Defaults to false.'
-          default: false
-        stream:
-          type: boolean
-          title: Stream
-          description: Stream the audio as it is generated. Supported for both `wav` and `mp3`.
-          default: false
-      type: object
-      required:
-      - model
-      - input
-      - voice
-      title: TextToSpeechRequest
-      example:
-        model: Fanar-Aura-TTS-2
-        input: Hello, welcome to Fanar!
-        voice: Harry
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
-    TTSResponseFormat:
-      type: string
-      enum:
-      - mp3
-      - wav
-      title: TTSResponseFormat
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    VoiceResponse:
-      properties:
-        voices:
-          items:
-            $ref: '#/components/schemas/Voice'
-          type: array
-          title: Voices
-          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
-      type: object
-      required:
-      - voices
-      title: VoiceResponse
-      example:
-        voices:
-        - accent: British
-          emotion: false
-          gender: Female
-          languages:
-          - en
-          name: Amelia
-          name_ar: أميليا
-          type: public
-        - accent: Gulf
-          emotion: false
-          gender: Male
-          languages:
-          - ar
-          name: Hamad
-          name_ar: حمد
-          type: public
-        - emotion: false
-          languages: []
-          name: MyVoice
-          type: personal
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
-    Body_create_voice_v1_audio_voices_post:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: The name of the personalized voice to be created.
-        audio:
-          type: string
-          format: binary
-          title: Audio
-          description: The audio sample to create the personalized voice. Only WAV format is accepted.
-        transcript:
-          type: string
-          title: Transcript
-          description: The transcript of the audio sample.
-      type: object
-      required:
-      - name
-      - audio
-      - transcript
-      title: Body_create_voice_v1_audio_voices_post
-    SpeechToTextResponseWithText:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the speech-to-text.
-        text:
-          type: string
-          title: Text
-          description: The transcribed text.
-      type: object
-      required:
-      - id
-      - text
-      title: SpeechToTextResponseWithText
-    QuranReciters:
-      type: string
-      enum:
-      - abdul-basit
-      - maher-al-muaiqly
-      - mahmoud-al-husary
-      title: QuranReciters
   securitySchemes:
     Bearer:
       type: http

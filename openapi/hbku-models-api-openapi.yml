@@ -208,31 +208,23 @@ components:
           - type: 'null'
       type: object
       title: Error
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
+    ModelsResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the models.
+        models:
+          items:
+            $ref: '#/components/schemas/AvailableModel'
+          type: array
+          title: Models
+          description: The available models.
+      type: object
+      required:
+      - id
+      - models
+      title: ModelsResponse
     AvailableModel:
       properties:
         id:
@@ -262,6 +254,24 @@ components:
       enum:
       - model
       title: ModelObject
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
     ErrorStatus:
       type: integer
       enum:
@@ -280,23 +290,13 @@ components:
       - 410
       - 499
       title: ErrorStatus
-    ModelsResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the models.
-        models:
-          items:
-            $ref: '#/components/schemas/AvailableModel'
-          type: array
-          title: Models
-          description: The available models.
-      type: object
-      required:
-      - id
-      - models
-      title: ModelsResponse
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
   securitySchemes:
     Bearer:
       type: http
