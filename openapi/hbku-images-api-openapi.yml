@@ -1,8 +1,159 @@
 openapi: 3.2.0
 info:
   title: Fanar Images API
-  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
-  termsOfService: https://fanar.qa/terms-of-services
+  description: 'You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+
+    Base URL: https://api.fanar.qa
+
+    Request API Access: https://api.fanar.qa/request
+
+    Models and release history: https://fanar.qa/en/models
+
+    Rate Limits
+
+
+    To ensure fair usage and optimal performance for all users, our API has rate limits in place. When you exceed a rate limit, your request will typically receive a 429 Too Many Requests HTTP status code.
+
+
+    Limits by model
+
+
+    These are our default settings for all models. We understand that your needs may vary. If your application requires higher throughput or more tailored rate limits for specific models, please contact us:
+
+
+    Model
+
+    Rate Limit
+
+
+    Fanar
+
+    50 requests/minute
+
+
+    Fanar-S-1-7B
+
+    50 requests/minute
+
+
+    Fanar-C-1-8.7B
+
+    50 requests/minute
+
+
+    Fanar-C-2-27B
+
+    50 requests/minute
+
+
+    Fanar-2.0-Tools
+
+    50 requests/minute
+
+
+    Fanar-Sadiq
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2 (validate)
+
+    200 requests/minute
+
+
+    Fanar-Sadiq-2 (deep research)
+
+    20 requests/day
+
+
+    Fanar-Sadiq-TTS-1
+
+    20 requests/day
+
+
+    Fanar-Oryx-IVU-2
+
+    20 requests/day
+
+
+    Fanar-Aura-TTS-2
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-1
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-LF-1
+
+    10 requests/day
+
+
+    Fanar-3.0-Aura-Transcribe (live stream sessions)
+
+    20 requests/day
+
+
+    Fanar-Oryx-IG-2
+
+    20 requests/day
+
+
+    Fanar-Guard-2
+
+    50 requests/minute
+
+
+    Fanar-Shaheen-MT-1
+
+    20 requests/day
+
+
+    Fanar-3.0-Shaheen-Translate
+
+    20 requests/day
+
+
+    Fanar-Diwan
+
+    50 requests/minute
+
+
+    Response headers
+
+
+    Every rate-limited response reports your current quota, so you can back off before being throttled:
+
+
+    Header
+
+    Description
+
+
+    x-ratelimit-limitRequests allowed per window.
+
+
+    x-ratelimit-remainingRequests still available in the current window.
+
+
+    x-ratelimit-resetSeconds until a request slot frees up.
+
+
+    ratelimit-policyThe quota and its window in seconds, as limit;w=seconds — so 100;w=86400 means 100 requests per day.
+
+
+    retry-afterSeconds to wait before retrying, sent only on a 429. When your own quota ran out it counts down to a free slot; when an upstream service throttled the request it carries that service''s own hint instead.
+
+
+    Because x-ratelimit-limit alone cannot tell 3 per minute from 3 per day, read ratelimit-policy when you need the window. These headers are omitted for API keys with unlimited quota.'
+  termsOfService: https://api.fanar.qa/terms-of-service
   contact:
     name: Fanar Support
     url: https://fanar.qa/
@@ -197,6 +348,36 @@ paths:
         source: "# Image Generation requires additional authorization and is not allowed by default.\n\nimport requests\nimport base64\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\njson_data = {\n    \"model\": \"Fanar-Oryx-IG-2\",\n    \"prompt\": \"A serene sunset over a mountain lake with reflections of colorful clouds and pine trees\"\n}\n\nresponse = requests.post(\n    \"https://api.fanar.qa/v1/images/generations\",\n    headers=headers,\n    json=json_data\n)\n\ndata = response.json()\n\nimage_b64 = data[\"data\"][0][\"b64_json\"]\n\nimage_bytes = base64.b64decode(image_b64)\n\nwith open(\"generated_image.png\", \"wb\") as f:\n    f.write(image_bytes)"
 components:
   schemas:
+    ImageGenerationModels:
+      type: string
+      enum:
+      - Fanar-Oryx-IG-2
+      title: ImageGenerationModels
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
     ImageGenerationRequest:
       properties:
         model:
@@ -219,48 +400,6 @@ components:
       example:
         model: Fanar-Oryx-IG-2
         prompt: A futuristic cityscape at sunset
-    ImageGenerationItem-Output:
-      properties:
-        b64_json:
-          type: string
-          title: B64 Json
-          description: The base64-encoded JSON of the generated image.
-        revised:
-          type: boolean
-          title: Revised
-          description: Indicates whether the prompt was revised before generation.
-        revised_prompt:
-          type: string
-          title: Revised Prompt
-          description: The prompt used for generation, which may be revised from the original prompt.
-      type: object
-      required:
-      - b64_json
-      - revised
-      - revised_prompt
-      title: ImageGenerationItem
-    ImageGenerationResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the image generation.
-        created:
-          type: integer
-          title: Created
-          description: The timestamp of when the image was created.
-        data:
-          items:
-            $ref: '#/components/schemas/ImageGenerationItem-Output'
-          type: array
-          title: Data
-          description: A list of the generated image.
-      type: object
-      required:
-      - id
-      - created
-      - data
-      title: ImageGenerationResponse
     Error:
       properties:
         code:
@@ -283,11 +422,6 @@ components:
           - type: 'null'
       type: object
       title: Error
-    ImageGenerationModels:
-      type: string
-      enum:
-      - Fanar-Oryx-IG-2
-      title: ImageGenerationModels
     ErrorCode:
       type: string
       enum:
@@ -306,31 +440,48 @@ components:
       - no_longer_supported
       - client_closed_request
       title: ErrorCode
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
+    ImageGenerationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the image generation.
+        created:
+          type: integer
+          title: Created
+          description: The timestamp of when the image was created.
+        data:
+          items:
+            $ref: '#/components/schemas/ImageGenerationItem-Output'
+          type: array
+          title: Data
+          description: A list of the generated image.
+      type: object
+      required:
+      - id
+      - created
+      - data
+      title: ImageGenerationResponse
+    ImageGenerationItem-Output:
+      properties:
+        b64_json:
+          type: string
+          title: B64 Json
+          description: The base64-encoded JSON of the generated image.
+        revised:
+          type: boolean
+          title: Revised
+          description: Indicates whether the prompt was revised before generation.
+        revised_prompt:
+          type: string
+          title: Revised Prompt
+          description: The prompt used for generation, which may be revised from the original prompt.
+      type: object
+      required:
+      - b64_json
+      - revised
+      - revised_prompt
+      title: ImageGenerationItem
   securitySchemes:
     Bearer:
       type: http

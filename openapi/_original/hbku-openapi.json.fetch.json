@@ -1,0 +1,12 @@
+{
+ "url": "https://api.fanar.qa/openapi.json",
+ "final": "https://api.fanar.qa/openapi.json",
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 257108,
+ "sha256": "1db8842ae426ab28ad016db8e51447a61a4dc03c6c98c585f32c8448284bb1f9",
+ "fetched_at": "2026-10-19",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "re-archived: the provider's current document replaced a stale archive (roadmap#793); the old files are in openapi/_superseded/2026-10-19-stale"
+}

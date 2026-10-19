@@ -1,8 +1,159 @@
 openapi: 3.2.0
 info:
   title: Fanar Chat API
-  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
-  termsOfService: https://fanar.qa/terms-of-services
+  description: 'You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+
+    Base URL: https://api.fanar.qa
+
+    Request API Access: https://api.fanar.qa/request
+
+    Models and release history: https://fanar.qa/en/models
+
+    Rate Limits
+
+
+    To ensure fair usage and optimal performance for all users, our API has rate limits in place. When you exceed a rate limit, your request will typically receive a 429 Too Many Requests HTTP status code.
+
+
+    Limits by model
+
+
+    These are our default settings for all models. We understand that your needs may vary. If your application requires higher throughput or more tailored rate limits for specific models, please contact us:
+
+
+    Model
+
+    Rate Limit
+
+
+    Fanar
+
+    50 requests/minute
+
+
+    Fanar-S-1-7B
+
+    50 requests/minute
+
+
+    Fanar-C-1-8.7B
+
+    50 requests/minute
+
+
+    Fanar-C-2-27B
+
+    50 requests/minute
+
+
+    Fanar-2.0-Tools
+
+    50 requests/minute
+
+
+    Fanar-Sadiq
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2 (validate)
+
+    200 requests/minute
+
+
+    Fanar-Sadiq-2 (deep research)
+
+    20 requests/day
+
+
+    Fanar-Sadiq-TTS-1
+
+    20 requests/day
+
+
+    Fanar-Oryx-IVU-2
+
+    20 requests/day
+
+
+    Fanar-Aura-TTS-2
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-1
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-LF-1
+
+    10 requests/day
+
+
+    Fanar-3.0-Aura-Transcribe (live stream sessions)
+
+    20 requests/day
+
+
+    Fanar-Oryx-IG-2
+
+    20 requests/day
+
+
+    Fanar-Guard-2
+
+    50 requests/minute
+
+
+    Fanar-Shaheen-MT-1
+
+    20 requests/day
+
+
+    Fanar-3.0-Shaheen-Translate
+
+    20 requests/day
+
+
+    Fanar-Diwan
+
+    50 requests/minute
+
+
+    Response headers
+
+
+    Every rate-limited response reports your current quota, so you can back off before being throttled:
+
+
+    Header
+
+    Description
+
+
+    x-ratelimit-limitRequests allowed per window.
+
+
+    x-ratelimit-remainingRequests still available in the current window.
+
+
+    x-ratelimit-resetSeconds until a request slot frees up.
+
+
+    ratelimit-policyThe quota and its window in seconds, as limit;w=seconds — so 100;w=86400 means 100 requests per day.
+
+
+    retry-afterSeconds to wait before retrying, sent only on a 429. When your own quota ran out it counts down to a free slot; when an upstream service throttled the request it carries that service''s own hint instead.
+
+
+    Because x-ratelimit-limit alone cannot tell 3 per minute from 3 per day, read ratelimit-policy when you need the window. These headers are omitted for API keys with unlimited quota.'
+  termsOfService: https://api.fanar.qa/terms-of-service
   contact:
     name: Fanar Support
     url: https://fanar.qa/
@@ -222,8 +373,152 @@ paths:
       - lang: Python - Image understanding
         label: Python - Image understanding
         source: "# Image understanding requires additional authorization and is not allowed by default.\n\nimport requests\nimport base64\n\ndef model_api(messages):\n    headers = {\n        \"Authorization\": \"Bearer YOUR_API_KEY_HERE\",\n        \"Content-Type\": \"application/json\",\n    }\n\n    payload = {\n        \"model\": \"Fanar-Oryx-IVU-2\",\n        \"messages\": messages,\n        \"max_tokens\": 750,\n    }\n\n    response = requests.post(\"https://api.fanar.qa/v1/chat/completions\", json=payload, headers=headers)\n    return response.json()\n\nwith open(\"path/to/image.jpg\", \"rb\") as image_file:\n    raw_b64 = base64.b64encode(image_file.read()).decode(\"utf-8\")\n\nimage_b64_url = f\"data:image/jpeg;base64,{raw_b64}\"\n\nprompt = \"Tell me about this image.\"\n\nmessages = [\n    {\n        \"role\": \"user\",\n        \"content\": [\n            {\n                \"type\": \"text\",\n                \"text\": prompt\n            },\n            {\n                \"type\": \"image_url\",\n                \"image_url\": {\n                    \"url\": image_b64_url\n                }\n            }\n        ]\n    }\n]\n\nresponse = model_api(messages=messages)\n\ncontent = response[\"choices\"][0][\"message\"][\"content\"]\nprint(\"Assistant Response:\\n\")\nprint(content)\n"
+      - lang: Python - Tool calling (Fanar-2.0-Tools)
+        label: Python - Tool calling (Fanar-2.0-Tools)
+        source: "# Fanar-2.0-Tools requires additional authorization and is not allowed by default.\n#\n# The model never runs a tool. It answers with the calls to make (finish_reason\n# \"tool_calls\"); your code runs them, sends each result back as a \"tool\" message,\n# and the model answers from the results. To get the best from it:\n#   - Keep the whole exchange in the history, on later turns too: the assistant\n#     turn with its tool_calls, then one \"tool\" message per call, in call order.\n#     The model reads its own calls to know which result answers what.\n#   - Never leave a call without a result. Return results as text (JSON is fine),\n#     failures included, e.g. {\"error\": \"...\"}.\n#   - Bound the round trips. On the last one, send tool_choice=\"none\" and the\n#     model answers from the results it has.\n#   - A system message is optional; if you send one, it must be the first message.\n#   - The context is 8K tokens. Keep the tool list and the history short; a request\n#     that does not fit is refused with HTTP 413.\n#   - tool_choice is \"auto\" (the default) or \"none\"; \"required\" and a named\n#     function are refused, and so is parallel_tool_calls=false.\n#   - Want structured output? Define a tool for it rather than asking for a JSON\n#     answer: a reply that starts with \"{\" is taken for a tool call and lost.\n#   - Arguments are written by the model and are not screened. Check them before\n#     acting on them -- above all before one that books, pays or sends.\n#   - Every round trip is one request against your rate limit.\n\nimport json\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\n\nfrom openai import OpenAI\n\nclient = OpenAI(\n    base_url=\"https://api.fanar.qa/v1\",\n    api_key=\"YOUR_API_KEY_HERE\",\n)\n\n# A travel assistant. These functions are stand-ins; yours would call real services.\ndef get_weather(city, unit=\"celsius\"):\n    celsius = {\"doha\": 34, \"cairo\": 27}.get(city.lower(), 25)\n    temperature = celsius if unit == \"celsius\" else round(celsius * 9 / 5 + 32)\n    return {\"city\": city, \"temperature\": temperature, \"unit\": unit, \"condition\": \"sunny\"}\n\ndef get_local_time(timezone):\n    now = datetime.now(ZoneInfo(timezone))\n    return {\"timezone\": timezone, \"local_time\": now.strftime(\"%Y-%m-%d %H:%M\")}\n\ndef convert_currency(amount, from_currency, to_currency):\n    per_usd = {\"USD\": 1.0, \"QAR\": 3.64, \"EGP\": 48.5, \"SAR\": 3.75, \"EUR\": 0.92}\n    value = amount / per_usd[from_currency] * per_usd[to_currency]\n    return {\"amount\": amount, \"from\": from_currency, \"to\": to_currency, \"converted\": round(value, 2)}\n\ndef search_flights(origin, destination, date, passengers, cabin=\"economy\"):\n    return {\"flights\": [\n        {\"flight_id\": \"QR1301\", \"departs\": f\"{date} 08:10\", \"arrives\": f\"{date} 10:55\", \"total_price_qar\": 4350},\n        {\"flight_id\": \"MS910\", \"departs\": f\"{date} 13:45\", \"arrives\": f\"{date} 16:20\", \"total_price_qar\": 3540},\n        {\"flight_id\": \"QR1303\", \"departs\": f\"{date} 19:30\", \"arrives\": f\"{date} 22:15\", \"total_price_qar\": 3990},\n    ]}\n\ndef book_flight(flight_id):\n    return {\"flight_id\": flight_id, \"status\": \"confirmed\", \"booking_reference\": \"FNR7X2\"}\n\nfunctions = {f.__name__: f for f in (get_weather, get_local_time, convert_currency, search_flights, book_flight)}\n\ndef tool(name, description, properties, required):\n    return {\"type\": \"function\", \"function\": {\n        \"name\": name, \"description\": description,\n        \"parameters\": {\"type\": \"object\", \"properties\": properties, \"required\": required},\n    }}\n\ntools = [\n    tool(\"get_weather\", \"Get the current weather in a city.\", {\n        \"city\": {\"type\": \"string\", \"description\": \"City name, e.g. Doha\"},\n        \"unit\": {\"type\": \"string\", \"enum\": [\"celsius\", \"fahrenheit\"]},\n    }, [\"city\"]),\n    tool(\"get_local_time\", \"Get the current local time in a timezone.\", {\n        \"timezone\": {\"type\": \"string\", \"description\": \"IANA timezone, e.g. Asia/Qatar\"},\n    }, [\"timezone\"]),\n    tool(\"convert_currency\", \"Convert an amount of money between currencies.\", {\n        \"amount\": {\"type\": \"number\"},\n        \"from_currency\": {\"type\": \"string\", \"description\": \"ISO 4217 code, e.g. QAR\"},\n        \"to_currency\": {\"type\": \"string\", \"description\": \"ISO 4217 code, e.g. EGP\"},\n    }, [\"amount\", \"from_currency\", \"to_currency\"]),\n    tool(\"search_flights\", \"Search flights between two cities on a date.\", {\n        \"origin\": {\"type\": \"string\"},\n        \"destination\": {\"type\": \"string\"},\n        \"date\": {\"type\": \"string\", \"description\": \"YYYY-MM-DD\"},\n        \"passengers\": {\n            \"type\": \"object\",\n            \"properties\": {\"adults\": {\"type\": \"integer\"}, \"children\": {\"type\": \"integer\"}},\n            \"required\": [\"adults\"],\n        },\n        \"cabin\": {\"type\": \"string\", \"enum\": [\"economy\", \"business\"]},\n    }, [\"origin\", \"destination\", \"date\", \"passengers\"]),\n    tool(\"book_flight\", \"Book a flight found by search_flights.\", {\n        \"flight_id\": {\"type\": \"string\"},\n    }, [\"flight_id\"]),\n]\n\ndef run(call):\n    function = functions.get(call.function.name)\n    if function is None:\n        return {\"error\": f\"Unknown tool {call.function.name}\"}\n    try:\n        return function(**json.loads(call.function.arguments))\n    except Exception as e:  # tell the model, rather than stopping\n        return {\"error\": str(e)}\n\n# One conversation: every question, call, result and answer stays in it.\nmessages = []\nMAX_ROUNDS = 5\n\ndef ask(question):\n    messages.append({\"role\": \"user\", \"content\": question})\n    for round_number in range(1, MAX_ROUNDS + 1):\n        response = client.chat.completions.create(\n            model=\"Fanar-2.0-Tools\",\n            messages=messages,\n            tools=tools,\n            temperature=0,\n            # Out of rounds: no more calls, answer from what you have.\n            tool_choice=\"none\" if round_number == MAX_ROUNDS else \"auto\",\n        )\n        choice = response.choices[0]\n        if choice.finish_reason != \"tool_calls\":\n            messages.append({\"role\": \"assistant\", \"content\": choice.message.content})\n            return choice.message.content\n\n        # The model's turn, calls included, then one result per call, in order.\n        # Several calls can come at once: run them all before asking again.\n        messages.append({\n            \"role\": \"assistant\",\n            \"content\": choice.message.content,\n            \"tool_calls\": [call.model_dump() for call in choice.message.tool_calls],\n        })\n        for call in choice.message.tool_calls:\n            print(f\"  -> {call.function.name}({call.function.arguments})\")\n            messages.append({\n                \"role\": \"tool\",\n                \"tool_call_id\": call.id,\n                \"content\": json.dumps(run(call), ensure_ascii=False),\n            })\n\n# Three tools in one answer: weather, local time and currency.\nprint(ask(\"I'm flying from Doha to Cairo. What's the weather and the local time in Cairo, \"\n          \"and how much is 1,000 Qatari riyals in Egyptian pounds?\"))\n\n# A nested argument: passengers is an object.\nprint(ask(\"Find us economy flights from Doha to Cairo on 2026-11-06, two adults and one child.\"))\n\n# A call that depends on an earlier result: the flight id comes from the search above.\nprint(ask(\"Book the cheapest one.\"))\n\n# Arabic works the same way:\n# print(ask(\"كم الساعة الآن في القاهرة، وما حالة الطقس هناك؟\"))\n"
+      - lang: Python - Tool calling stream (Fanar-2.0-Tools)
+        label: Python - Tool calling stream (Fanar-2.0-Tools)
+        source: "# Fanar-2.0-Tools requires additional authorization and is not allowed by default.\n# The loop of \"Python - Tool calling (Fanar-2.0-Tools)\", streamed: text is printed as it\n# arrives; tool calls are collected by index and run once the stream ends with\n# finish_reason \"tool_calls\". The same rules apply: keep every call and result in the\n# history, one result per call in call order, tool_choice=\"none\" on the last round.\n\nimport asyncio\nimport json\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\n\nfrom openai import AsyncOpenAI\n\nclient = AsyncOpenAI(\n    base_url=\"https://api.fanar.qa/v1\",\n    api_key=\"YOUR_API_KEY_HERE\",\n)\n\n# Stand-ins for your own services.\ndef get_weather(city):\n    celsius = {\"doha\": 34, \"cairo\": 27}.get(city.lower(), 25)\n    return {\"city\": city, \"temperature\": celsius, \"unit\": \"celsius\", \"condition\": \"sunny\"}\n\ndef get_local_time(timezone):\n    now = datetime.now(ZoneInfo(timezone))\n    return {\"timezone\": timezone, \"local_time\": now.strftime(\"%Y-%m-%d %H:%M\")}\n\ndef convert_currency(amount, from_currency, to_currency):\n    per_usd = {\"USD\": 1.0, \"QAR\": 3.64, \"EGP\": 48.5, \"SAR\": 3.75, \"EUR\": 0.92}\n    value = amount / per_usd[from_currency] * per_usd[to_currency]\n    return {\"amount\": amount, \"from\": from_currency, \"to\": to_currency, \"converted\": round(value, 2)}\n\nfunctions = {f.__name__: f for f in (get_weather, get_local_time, convert_currency)}\n\ndef tool(name, description, properties, required):\n    return {\"type\": \"function\", \"function\": {\n        \"name\": name, \"description\": description,\n        \"parameters\": {\"type\": \"object\", \"properties\": properties, \"required\": required},\n    }}\n\ntools = [\n    tool(\"get_weather\", \"Get the current weather in a city.\",\n         {\"city\": {\"type\": \"string\", \"description\": \"City name, e.g. Doha\"}}, [\"city\"]),\n    tool(\"get_local_time\", \"Get the current local time in a timezone.\",\n         {\"timezone\": {\"type\": \"string\", \"description\": \"IANA timezone, e.g. Asia/Qatar\"}}, [\"timezone\"]),\n    tool(\"convert_currency\", \"Convert an amount of money between currencies.\", {\n        \"amount\": {\"type\": \"number\"},\n        \"from_currency\": {\"type\": \"string\", \"description\": \"ISO 4217 code, e.g. QAR\"},\n        \"to_currency\": {\"type\": \"string\", \"description\": \"ISO 4217 code, e.g. EGP\"},\n    }, [\"amount\", \"from_currency\", \"to_currency\"]),\n]\n\nasync def main():\n    messages = [{\"role\": \"user\", \"content\": \"What's the weather and the local time in Cairo, \"\n                                            \"and how much is 1,000 Qatari riyals in Egyptian pounds?\"}]\n\n    max_rounds = 5\n    for round_number in range(1, max_rounds + 1):\n        stream = await client.chat.completions.create(\n            model=\"Fanar-2.0-Tools\",\n            messages=messages,\n            tools=tools,\n            temperature=0,\n            stream=True,\n            # Out of rounds: no more calls, answer from what you have.\n            tool_choice=\"none\" if round_number == max_rounds else \"auto\",\n        )\n        content, calls, finish_reason = \"\", {}, None\n        async for chunk in stream:\n            if not chunk.choices:\n                continue\n            choice = chunk.choices[0]\n            if choice.delta.content:\n                content += choice.delta.content\n                print(choice.delta.content, end=\"\", flush=True)\n            # A call may arrive whole or in pieces; gather it by its index.\n            for call in choice.delta.tool_calls or []:\n                slot = calls.setdefault(call.index, {\"id\": None, \"name\": \"\", \"arguments\": \"\"})\n                slot[\"id\"] = call.id or slot[\"id\"]\n                if call.function:\n                    slot[\"name\"] += call.function.name or \"\"\n                    slot[\"arguments\"] += call.function.arguments or \"\"\n            finish_reason = choice.finish_reason or finish_reason\n\n        if finish_reason != \"tool_calls\":\n            print()\n            break\n\n        calls = [calls[index] for index in sorted(calls)]\n        messages.append({\n            \"role\": \"assistant\",\n            \"content\": content or None,\n            \"tool_calls\": [\n                {\"id\": c[\"id\"], \"type\": \"function\",\n                 \"function\": {\"name\": c[\"name\"], \"arguments\": c[\"arguments\"]}}\n                for c in calls\n            ],\n        })\n        for c in calls:  # one result per call, in order\n            print(f\"  -> {c['name']}({c['arguments']})\")\n            try:\n                result = functions[c[\"name\"]](**json.loads(c[\"arguments\"]))\n            except Exception as e:  # tell the model, rather than stopping\n                result = {\"error\": str(e)}\n            messages.append({\n                \"role\": \"tool\",\n                \"tool_call_id\": c[\"id\"],\n                \"content\": json.dumps(result, ensure_ascii=False),\n            })\n\nasyncio.run(main())\n"
+      - lang: cURL - Tool calling (Fanar-2.0-Tools)
+        label: cURL - Tool calling (Fanar-2.0-Tools)
+        source: "# Fanar-2.0-Tools requires additional authorization and is not allowed by default.\n\n# 1. Offer the tools. The answer is the call to make:\ncurl -X POST \"https://api.fanar.qa/v1/chat/completions\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY_HERE\" \\\n  -d '{\n    \"model\": \"Fanar-2.0-Tools\",\n    \"temperature\": 0,\n    \"messages\": [\n      {\"role\": \"user\", \"content\": \"What is the weather in Doha?\"}\n    ],\n    \"tools\": [{\n      \"type\": \"function\",\n      \"function\": {\n        \"name\": \"get_weather\",\n        \"description\": \"Get the current weather in a city.\",\n        \"parameters\": {\n          \"type\": \"object\",\n          \"properties\": {\"city\": {\"type\": \"string\"}},\n          \"required\": [\"city\"]\n        }\n      }\n    }]\n  }'\n\n#   \"finish_reason\": \"tool_calls\",\n#   \"message\": {\"role\": \"assistant\", \"content\": null, \"tool_calls\": [{\n#     \"id\": \"call_0b2f6c1e9d8a4f3b8c7e6d5a\", \"type\": \"function\",\n#     \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\": \\\"Doha\\\"}\"}}]}\n\n# 2. Run get_weather yourself, then send the model's turn and the result back:\ncurl -X POST \"https://api.fanar.qa/v1/chat/completions\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY_HERE\" \\\n  -d '{\n    \"model\": \"Fanar-2.0-Tools\",\n    \"temperature\": 0,\n    \"messages\": [\n      {\"role\": \"user\", \"content\": \"What is the weather in Doha?\"},\n      {\"role\": \"assistant\", \"content\": null, \"tool_calls\": [{\n        \"id\": \"call_0b2f6c1e9d8a4f3b8c7e6d5a\", \"type\": \"function\",\n        \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\": \\\"Doha\\\"}\"}\n      }]},\n      {\"role\": \"tool\", \"tool_call_id\": \"call_0b2f6c1e9d8a4f3b8c7e6d5a\",\n       \"content\": \"{\\\"temperature\\\": 34, \\\"unit\\\": \\\"celsius\\\", \\\"condition\\\": \\\"sunny\\\"}\"}\n    ],\n    \"tools\": [{\n      \"type\": \"function\",\n      \"function\": {\n        \"name\": \"get_weather\",\n        \"description\": \"Get the current weather in a city.\",\n        \"parameters\": {\n          \"type\": \"object\",\n          \"properties\": {\"city\": {\"type\": \"string\"}},\n          \"required\": [\"city\"]\n        }\n      }\n    }]\n  }'\n\n#   \"finish_reason\": \"stop\",\n#   \"message\": {\"role\": \"assistant\",\n#     \"content\": \"The weather in Doha is sunny, with a temperature of 34 degrees Celsius.\"}\n"
 components:
   schemas:
+    TokenChunk:
+      properties:
+        id:
+          description: A unique identifier for the chat completion
+          title: Id
+          type: string
+        object:
+          default: chat.completion.chunk
+          description: The object type
+          title: Object
+          type: string
+        created:
+          description: The Unix timestamp (in seconds) of when the chat completion was created.
+          title: Created
+          type: integer
+        model:
+          description: The model used for the chat completion.
+          title: Model
+          type: string
+        choices:
+          description: A list of chat completion choices.Can be more than one if `n` is greater than 1.
+          items:
+            $ref: '#/components/schemas/ChoiceToken'
+          title: Choices
+          type: array
+      required:
+      - id
+      - created
+      - model
+      - choices
+      title: TokenChunk
+      type: object
+    MadhabEnum:
+      type: string
+      enum:
+      - all
+      - hanafi
+      - maliki
+      - shafii
+      - hanbali
+      title: MadhabEnum
+    DeltaReferences:
+      properties:
+        references:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChatCompletionChoiceMessageReference'
+            type: array
+          - type: 'null'
+          default: null
+          description: The list of references used in the response
+          title: References
+      title: DeltaReferences
+      type: object
+    ChatCompletionToolMessageParam:
+      properties:
+        role:
+          type: string
+          const: tool
+          title: Role
+        content:
+          anyOf:
+          - type: string
+          - items:
+              $ref: '#/components/schemas/ChatCompletionContentPartTextParam'
+            type: array
+          title: Content
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - role
+      - content
+      title: ChatCompletionToolMessageParam
+      description: 'A tool''s result, sent back to Fanar-2.0-Tools. `content` is a List rather than an Iterable so
+
+        it is not a one-shot iterator after validation.'
+    ChatCompletionContentImage:
+      properties:
+        type:
+          type: string
+          const: image_url
+          title: Type
+        image_url:
+          $ref: '#/components/schemas/URL'
+      type: object
+      required:
+      - type
+      - image_url
+      title: ChatCompletionContentImage
+    ChatCompletionTokenLogprob:
+      properties:
+        token:
+          type: string
+          title: Token
+        bytes:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Bytes
+        logprob:
+          type: number
+          title: Logprob
+        top_logprobs:
+          items:
+            $ref: '#/components/schemas/TopLogprob'
+          type: array
+          title: Top Logprobs
+      additionalProperties: true
+      type: object
+      required:
+      - token
+      - logprob
+      - top_logprobs
+      title: ChatCompletionTokenLogprob
+    ChatCompletionContentText:
+      properties:
+        type:
+          type: string
+          const: text
+          title: Type
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - type
+      - text
+      title: ChatCompletionContentText
     ToolResultChunk:
       properties:
         id:
@@ -256,31 +551,6 @@ components:
       - choices
       title: ToolResultChunk
       type: object
-    ChatCompletionChoiceMessageReference:
-      properties:
-        index:
-          description: The location of the reference in the response
-          title: index
-          type: integer
-        number:
-          description: The reference number in the response
-          title: number
-          type: integer
-        source:
-          description: The source of the reference
-          title: source
-          type: string
-        content:
-          description: The content of the reference
-          title: content
-          type: string
-      required:
-      - index
-      - number
-      - source
-      - content
-      title: ChatCompletionChoiceMessageReference
-      type: object
     DeltaContent:
       properties:
         content:
@@ -291,82 +561,51 @@ components:
       - content
       title: DeltaContent
       type: object
-    SourcesEnum:
-      type: string
-      enum:
-      - islam_qa
-      - islamweb
-      - islamweb_fatwa
-      - islamweb_consult
-      - islamweb_article
-      - islamweb_library
-      - sunnah
-      - quran
-      - tafsir
-      - dorar
-      - islamonline
-      - shamela
-      title: SourcesEnum
-    DoneChunk:
+    DeltaToolCalls:
       properties:
-        id:
-          description: A unique identifier for the chat completion
-          title: Id
-          type: string
-        object:
-          default: chat.completion.chunk
-          description: The object type
-          title: Object
-          type: string
-        created:
-          description: The Unix timestamp (in seconds) of when the chat completion was created.
-          title: Created
-          type: integer
-        model:
-          description: The model used for the chat completion.
-          title: Model
-          type: string
-        choices:
-          description: List of choices with final delta
+        tool_calls:
+          description: The list of tool calls that need to be executed.
           items:
-            $ref: '#/components/schemas/ChoiceFinal'
-          title: Choices
+            $ref: '#/components/schemas/ToolCallData'
+          title: Tool Calls
           type: array
-        usage:
-          anyOf:
-          - $ref: '#/components/schemas/CompletionUsage'
-          - type: 'null'
-          default: null
-          description: Usage statistics for the completion request.
-        metadata:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          default: null
-          description: Additional metadata associated with the completion.
-          title: Metadata
       required:
-      - id
-      - created
-      - model
-      - choices
-      title: DoneChunk
+      - tool_calls
+      title: DeltaToolCalls
       type: object
-    ChatCompletionThinkingUserMessageParam:
+    ChatCompletionContentPartRefusalParam:
       properties:
-        role:
+        refusal:
           type: string
-          const: thinking_user
-          title: Role
-        content:
+          title: Refusal
+        type:
           type: string
-          title: Content
+          const: refusal
+          title: Type
       type: object
       required:
-      - role
-      - content
-      title: ChatCompletionThinkingUserMessageParam
+      - refusal
+      - type
+      title: ChatCompletionContentPartRefusalParam
+    ChoiceToken:
+      properties:
+        index:
+          default: 0
+          title: Index
+          type: integer
+        finish_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: The reason the model stopped generating
+          title: Finish Reason
+        delta:
+          $ref: '#/components/schemas/DeltaContent'
+      required:
+      - delta
+      title: ChoiceToken
+      type: object
     ChatCompletionToolCall:
       properties:
         id:
@@ -406,161 +645,6 @@ components:
       - name
       - arguments
       title: ChatCompletionToolCall
-    ProgressChunk:
-      properties:
-        id:
-          description: A unique identifier for the chat completion
-          title: Id
-          type: string
-        object:
-          default: chat.completion.chunk
-          description: The object type
-          title: Object
-          type: string
-        created:
-          description: The Unix timestamp (in seconds) of when the chat completion was created.
-          title: Created
-          type: integer
-        model:
-          description: The model used for the chat completion.
-          title: Model
-          type: string
-        progress:
-          $ref: '#/components/schemas/ProgressData'
-          description: Progress event indicating current processing step
-      required:
-      - id
-      - created
-      - model
-      - progress
-      title: ProgressChunk
-      type: object
-    TokenChunk:
-      properties:
-        id:
-          description: A unique identifier for the chat completion
-          title: Id
-          type: string
-        object:
-          default: chat.completion.chunk
-          description: The object type
-          title: Object
-          type: string
-        created:
-          description: The Unix timestamp (in seconds) of when the chat completion was created.
-          title: Created
-          type: integer
-        model:
-          description: The model used for the chat completion.
-          title: Model
-          type: string
-        choices:
-          description: A list of chat completion choices.Can be more than one if `n` is greater than 1.
-          items:
-            $ref: '#/components/schemas/ChoiceToken'
-          title: Choices
-          type: array
-      required:
-      - id
-      - created
-      - model
-      - choices
-      title: TokenChunk
-      type: object
-    ChoiceError:
-      properties:
-        index:
-          default: 0
-          title: Index
-          type: integer
-        delta:
-          $ref: '#/components/schemas/DeltaContent'
-        finish_reason:
-          default: error
-          title: Finish Reason
-          type: string
-      required:
-      - delta
-      title: ChoiceError
-      type: object
-    ErrorCode:
-      type: string
-      enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    ChatCompletionContentPartImageParam:
-      properties:
-        image_url:
-          $ref: '#/components/schemas/ImageURL'
-        type:
-          type: string
-          const: image_url
-          title: Type
-      type: object
-      required:
-      - image_url
-      - type
-      title: ChatCompletionContentPartImageParam
-    ChatCompletionContentPartVideoParam:
-      properties:
-        video_url:
-          $ref: '#/components/schemas/VideoURL'
-        type:
-          type: string
-          const: video_url
-          title: Type
-      type: object
-      required:
-      - video_url
-      - type
-      title: ChatCompletionContentPartVideoParam
-    TopLogprob:
-      properties:
-        token:
-          type: string
-          title: Token
-        bytes:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Bytes
-        logprob:
-          type: number
-          title: Logprob
-      additionalProperties: true
-      type: object
-      required:
-      - token
-      - logprob
-      title: TopLogprob
-    ChatCompletionContentImage:
-      properties:
-        type:
-          type: string
-          const: image_url
-          title: Type
-        image_url:
-          $ref: '#/components/schemas/URL'
-      type: object
-      required:
-      - type
-      - image_url
-      title: ChatCompletionContentImage
     ImageURL:
       properties:
         url:
@@ -577,6 +661,242 @@ components:
       required:
       - url
       title: ImageURL
+    ChatCompletionFunctionToolCall:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The unique identifier for the tool call
+        type:
+          type: string
+          const: function
+          title: Type
+          description: The type of the tool call
+          default: function
+        function:
+          $ref: '#/components/schemas/FunctionData'
+      type: object
+      required:
+      - id
+      - function
+      title: ChatCompletionFunctionToolCall
+      description: 'A call the model asks the caller to make, in the OpenAI shape (Fanar-2.0-Tools). The other
+
+        shape, ChatCompletionToolCall, is a call Fanar-Agentic already ran: arguments as an object,
+
+        with its result.'
+    CompletionTokensDetails:
+      additionalProperties: true
+      properties:
+        accepted_prediction_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Accepted Prediction Tokens
+        audio_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Audio Tokens
+        reasoning_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Reasoning Tokens
+        rejected_prediction_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Rejected Prediction Tokens
+      title: CompletionTokensDetails
+      type: object
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    ChoiceFinal:
+      properties:
+        index:
+          default: 0
+          title: Index
+          type: integer
+        finish_reason:
+          default: stop
+          title: Finish Reason
+          type: string
+        delta:
+          $ref: '#/components/schemas/DeltaReferences'
+      required:
+      - delta
+      title: ChoiceFinal
+      type: object
+    ChatCompletionChoiceMessageReference:
+      properties:
+        index:
+          description: The location of the reference in the response
+          title: index
+          type: integer
+        number:
+          description: The reference number in the response
+          title: number
+          type: integer
+        source:
+          description: The source of the reference
+          title: source
+          type: string
+        content:
+          description: The content of the reference
+          title: content
+          type: string
+      required:
+      - index
+      - number
+      - source
+      - content
+      title: ChatCompletionChoiceMessageReference
+      type: object
+    CompletionUsage:
+      additionalProperties: true
+      properties:
+        completion_tokens:
+          title: Completion Tokens
+          type: integer
+        prompt_tokens:
+          title: Prompt Tokens
+          type: integer
+        total_tokens:
+          title: Total Tokens
+          type: integer
+        completion_tokens_details:
+          anyOf:
+          - $ref: '#/components/schemas/CompletionTokensDetails'
+          - type: 'null'
+          default: null
+        prompt_tokens_details:
+          anyOf:
+          - $ref: '#/components/schemas/PromptTokensDetails'
+          - type: 'null'
+          default: null
+      required:
+      - completion_tokens
+      - prompt_tokens
+      - total_tokens
+      title: CompletionUsage
+      type: object
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
+    ChatCompletionUserMessageParam:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/ChatCompletionContentPartTextParam'
+              - $ref: '#/components/schemas/ChatCompletionContentPartImageParam'
+              - $ref: '#/components/schemas/ChatCompletionContentPartVideoParam'
+            type: array
+          title: Content
+        role:
+          type: string
+          const: user
+          title: Role
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - content
+      - role
+      title: ChatCompletionUserMessageParam
+    ToolResultData:
+      description: Tool result data
+      properties:
+        id:
+          description: The unique identifier for the tool call
+          title: Id
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: The name of the tool called
+          title: Name
+        arguments:
+          additionalProperties: true
+          description: The arguments passed to the tool
+          title: Arguments
+          type: object
+        result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: The result returned by the tool
+          title: Result
+        structured_content:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          default: null
+          description: The structured content returned by the tool
+          title: Structured Content
+        is_error:
+          default: false
+          description: Indicates if there was an error during the tool call
+          title: Is Error
+          type: boolean
+      required:
+      - id
+      title: ToolResultData
+      type: object
     ChatCompletionResponse:
       properties:
         id:
@@ -622,64 +942,7 @@ components:
       - created
       - model
       title: ChatCompletionResponse
-    ChatCompletionAssistantMessageParam:
-      properties:
-        role:
-          type: string
-          const: assistant
-          title: Role
-        content:
-          anyOf:
-          - type: string
-          - items:
-              anyOf:
-              - $ref: '#/components/schemas/ChatCompletionContentPartTextParam'
-              - $ref: '#/components/schemas/ChatCompletionContentPartRefusalParam'
-            type: array
-          - type: 'null'
-          title: Content
-        name:
-          type: string
-          title: Name
-        tool_calls:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChatCompletionToolCall'
-            type: array
-          - type: 'null'
-          title: Tool Calls
-      type: object
-      required:
-      - role
-      title: ChatCompletionAssistantMessageParam
-    DeltaReferences:
-      properties:
-        references:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChatCompletionChoiceMessageReference'
-            type: array
-          - type: 'null'
-          default: null
-          description: The list of references used in the response
-          title: References
-      title: DeltaReferences
-      type: object
-    ChatCompletionContentPartRefusalParam:
-      properties:
-        refusal:
-          type: string
-          title: Refusal
-        type:
-          type: string
-          const: refusal
-          title: Type
-      type: object
-      required:
-      - refusal
-      - type
-      title: ChatCompletionContentPartRefusalParam
-    ChatCompletionTokenLogprob:
+    TopLogprob:
       properties:
         token:
           type: string
@@ -694,210 +957,12 @@ components:
         logprob:
           type: number
           title: Logprob
-        top_logprobs:
-          items:
-            $ref: '#/components/schemas/TopLogprob'
-          type: array
-          title: Top Logprobs
       additionalProperties: true
       type: object
       required:
       - token
       - logprob
-      - top_logprobs
-      title: ChatCompletionTokenLogprob
-    ChatCompletionLLM:
-      type: string
-      enum:
-      - Fanar
-      - Fanar-S-1-7B
-      - Fanar-C-1-8.7B
-      - Fanar-C-2-27B
-      - Fanar-Sadiq
-      - Fanar-Sadiq-2
-      - Fanar-Oryx-IVU-2
-      title: ChatCompletionLLM
-    CompletionUsage:
-      additionalProperties: true
-      properties:
-        completion_tokens:
-          title: Completion Tokens
-          type: integer
-        prompt_tokens:
-          title: Prompt Tokens
-          type: integer
-        total_tokens:
-          title: Total Tokens
-          type: integer
-        completion_tokens_details:
-          anyOf:
-          - $ref: '#/components/schemas/CompletionTokensDetails'
-          - type: 'null'
-          default: null
-        prompt_tokens_details:
-          anyOf:
-          - $ref: '#/components/schemas/PromptTokensDetails'
-          - type: 'null'
-          default: null
-      required:
-      - completion_tokens
-      - prompt_tokens
-      - total_tokens
-      title: CompletionUsage
-      type: object
-    ChoiceToolResult:
-      properties:
-        index:
-          default: 0
-          title: Index
-          type: integer
-        finish_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          description: The reason the model stopped generating
-          title: Finish Reason
-        delta:
-          $ref: '#/components/schemas/DeltaToolResult'
-      required:
-      - delta
-      title: ChoiceToolResult
-      type: object
-    ChatCompletionChoice-Output:
-      properties:
-        finish_reason:
-          type: string
-          enum:
-          - stop
-          - length
-          - tool_calls
-          - content_filter
-          - function_call
-          title: Finish Reason
-        index:
-          type: integer
-          title: Index
-        logprobs:
-          anyOf:
-          - $ref: '#/components/schemas/ChoiceLogprobs-Output'
-          - type: 'null'
-        message:
-          $ref: '#/components/schemas/ChatCompletionChoiceMessage-Output'
-      additionalProperties: true
-      type: object
-      required:
-      - finish_reason
-      - index
-      - message
-      title: ChatCompletionChoice
-    ToolCallData:
-      description: Tool call in delta.tool_calls
-      properties:
-        index:
-          description: The index of the tool call in the list
-          title: Index
-          type: integer
-        id:
-          description: The unique identifier for the tool call
-          title: Id
-          type: string
-        type:
-          default: function
-          description: The type of the tool call
-          title: Type
-          type: string
-        function:
-          $ref: '#/components/schemas/FunctionData'
-      required:
-      - index
-      - id
-      - function
-      title: ToolCallData
-      type: object
-    DeltaToolCalls:
-      properties:
-        tool_calls:
-          description: The list of tool calls that need to be executed.
-          items:
-            $ref: '#/components/schemas/ToolCallData'
-          title: Tool Calls
-          type: array
-      required:
-      - tool_calls
-      title: DeltaToolCalls
-      type: object
-    ToolCallChunk:
-      properties:
-        id:
-          description: A unique identifier for the chat completion
-          title: Id
-          type: string
-        object:
-          default: chat.completion.chunk
-          description: The object type
-          title: Object
-          type: string
-        created:
-          description: The Unix timestamp (in seconds) of when the chat completion was created.
-          title: Created
-          type: integer
-        model:
-          description: The model used for the chat completion.
-          title: Model
-          type: string
-        choices:
-          description: A list of chat completion choices.Can be more than one if `n` is greater than 1.
-          items:
-            $ref: '#/components/schemas/ChoiceToolCall'
-          title: Choices
-          type: array
-      required:
-      - id
-      - created
-      - model
-      - choices
-      title: ToolCallChunk
-      type: object
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
-    ChatCompletionContentText:
-      properties:
-        type:
-          type: string
-          const: text
-          title: Type
-        text:
-          type: string
-          title: Text
-      type: object
-      required:
-      - type
-      - text
-      title: ChatCompletionContentText
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
+      title: TopLogprob
     ChatCompletionSystemMessageParam:
       properties:
         content:
@@ -919,132 +984,45 @@ components:
       - content
       - role
       title: ChatCompletionSystemMessageParam
-    ProgressMessage:
-      description: Bilingual progress message
+    ChatCompletionLLM:
+      type: string
+      enum:
+      - Fanar
+      - Fanar-S-1-7B
+      - Fanar-C-1-8.7B
+      - Fanar-C-2-27B
+      - Fanar-2.0-Tools
+      - Fanar-Sadiq
+      - Fanar-Sadiq-2
+      - Fanar-Oryx-IVU-2
+      title: ChatCompletionLLM
+    ChatCompletionContentPartTextParam:
       properties:
-        en:
-          description: Progress message in English
-          title: En
+        text:
           type: string
-        ar:
-          description: Progress message in Arabic
-          title: Ar
-          type: string
-      required:
-      - en
-      - ar
-      title: ProgressMessage
-      type: object
-    ToolResultData:
-      description: Tool result data
-      properties:
-        id:
-          description: The unique identifier for the tool call
-          title: Id
-          type: string
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          description: The name of the tool called
-          title: Name
-        arguments:
-          additionalProperties: true
-          description: The arguments passed to the tool
-          title: Arguments
-          type: object
-        result:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          description: The result returned by the tool
-          title: Result
-        structured_content:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          default: null
-          description: The structured content returned by the tool
-          title: Structured Content
-        is_error:
-          default: false
-          description: Indicates if there was an error during the tool call
-          title: Is Error
-          type: boolean
-      required:
-      - id
-      title: ToolResultData
-      type: object
-    DeltaToolResult:
-      properties:
-        tool_result:
-          $ref: '#/components/schemas/ToolResultData'
-          description: The list of tool call results returned by the executed tools.
-      required:
-      - tool_result
-      title: DeltaToolResult
-      type: object
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
+          title: Text
         type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
+          type: string
+          const: text
+          title: Type
       type: object
-      title: Error
-    PromptTokensDetails:
-      additionalProperties: true
-      properties:
-        audio_tokens:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Audio Tokens
-        cached_tokens:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Cached Tokens
-      title: PromptTokensDetails
-      type: object
-    ChoiceToken:
-      properties:
-        index:
-          default: 0
-          title: Index
-          type: integer
-        finish_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          description: The reason the model stopped generating
-          title: Finish Reason
-        delta:
-          $ref: '#/components/schemas/DeltaContent'
       required:
-      - delta
-      title: ChoiceToken
+      - text
+      - type
+      title: ChatCompletionContentPartTextParam
+    ChatCompletionFunctionToolParam:
+      properties:
+        function:
+          $ref: '#/components/schemas/FunctionDefinition'
+        type:
+          type: string
+          const: function
+          title: Type
       type: object
+      required:
+      - function
+      - type
+      title: ChatCompletionFunctionToolParam
     BookNamesEnum:
       type: string
       enum:
@@ -1621,60 +1599,72 @@ components:
       - الموسوعة الميسرة في الأديان والمذاهب والأحزاب المعاصرة
       - التحالف السياسي في الإسلام
       title: BookNamesEnum
-    VideoURL:
+    ChatCompletionThinkingMessageParam:
       properties:
-        url:
+        role:
           type: string
-          title: Url
+          const: thinking
+          title: Role
+        content:
+          type: string
+          title: Content
       type: object
       required:
-      - url
-      title: VideoURL
-    CompletionTokensDetails:
-      additionalProperties: true
-      properties:
-        accepted_prediction_tokens:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Accepted Prediction Tokens
-        audio_tokens:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Audio Tokens
-        reasoning_tokens:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Reasoning Tokens
-        rejected_prediction_tokens:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Rejected Prediction Tokens
-      title: CompletionTokensDetails
-      type: object
-    ChoiceFinal:
+      - role
+      - content
+      title: ChatCompletionThinkingMessageParam
+    ChoiceToolResult:
       properties:
         index:
           default: 0
           title: Index
           type: integer
         finish_reason:
-          default: stop
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: The reason the model stopped generating
           title: Finish Reason
-          type: string
         delta:
-          $ref: '#/components/schemas/DeltaReferences'
+          $ref: '#/components/schemas/DeltaToolResult'
       required:
       - delta
-      title: ChoiceFinal
+      title: ChoiceToolResult
       type: object
+    ChoiceLogprobs-Output:
+      properties:
+        content:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChatCompletionTokenLogprob'
+            type: array
+          - type: 'null'
+          title: Content
+        refusal:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChatCompletionTokenLogprob'
+            type: array
+          - type: 'null'
+          title: Refusal
+      additionalProperties: true
+      type: object
+      title: ChoiceLogprobs
+    ChatCompletionThinkingUserMessageParam:
+      properties:
+        role:
+          type: string
+          const: thinking_user
+          title: Role
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - role
+      - content
+      title: ChatCompletionThinkingUserMessageParam
     ChatCompletionRequest:
       properties:
         messages:
@@ -1683,6 +1673,7 @@ components:
             - $ref: '#/components/schemas/ChatCompletionSystemMessageParam'
             - $ref: '#/components/schemas/ChatCompletionUserMessageParam'
             - $ref: '#/components/schemas/ChatCompletionAssistantMessageParam'
+            - $ref: '#/components/schemas/ChatCompletionToolMessageParam'
             - $ref: '#/components/schemas/ChatCompletionThinkingUserMessageParam'
             - $ref: '#/components/schemas/ChatCompletionThinkingMessageParam'
           type: array
@@ -1912,6 +1903,28 @@ components:
           - type: 'null'
           title: Persona
           description: Custom persona that controls the assistant's voice and identity for the Fanar-Sadiq model. Free-form text; only supported for Fanar-Sadiq.
+        tools:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChatCompletionFunctionToolParam'
+            type: array
+          - type: 'null'
+          title: Tools
+          description: 'Functions the model may ask you to call; only Fanar-2.0-Tools uses them. The model never runs them: the response returns the calls (`finish_reason` `tool_calls`), your code runs them and sends each result back as a `tool` message, in the order of the calls.'
+        tool_choice:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tool Choice
+          description: '`auto` (the default when tools are given) or `none`; Fanar-2.0-Tools does not support `required` or a named function.'
+        parallel_tool_calls:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Parallel Tool Calls
+          description: Fanar-2.0-Tools may ask for several calls in one response; `false` is not supported.
       type: object
       required:
       - messages
@@ -1922,19 +1935,27 @@ components:
         messages:
         - role: user
           content: Hello
-    ChatCompletionContentAudio:
+    FunctionDefinition:
       properties:
-        type:
+        name:
           type: string
-          const: audio_url
-          title: Type
-        audio_url:
-          $ref: '#/components/schemas/URL'
+          title: Name
+        description:
+          type: string
+          title: Description
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        strict:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Strict
       type: object
       required:
-      - type
-      - audio_url
-      title: ChatCompletionContentAudio
+      - name
+      title: FunctionDefinition
     FunctionData:
       description: Function call details
       properties:
@@ -1951,20 +1972,339 @@ components:
       - arguments
       title: FunctionData
       type: object
-    ChatCompletionThinkingMessageParam:
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
+    VideoURL:
       properties:
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - url
+      title: VideoURL
+    ChatCompletionChoiceMessage-Output:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/ChatCompletionContentText'
+              - $ref: '#/components/schemas/ChatCompletionContentImage'
+              - $ref: '#/components/schemas/ChatCompletionContentAudio'
+            type: array
+          - type: 'null'
+          title: Content
         role:
           type: string
-          const: thinking
+          const: assistant
           title: Role
-        content:
-          type: string
-          title: Content
+        references:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ChatCompletionChoiceMessageReference'
+            type: array
+          - type: 'null'
+          title: references
+          description: The list of references used in the response
+        tool_calls:
+          anyOf:
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/ChatCompletionToolCall'
+              - $ref: '#/components/schemas/ChatCompletionFunctionToolCall'
+            type: array
+          - type: 'null'
+          title: tool_calls
+          description: The list of tool calls made by the assistant.
       type: object
       required:
       - role
-      - content
-      title: ChatCompletionThinkingMessageParam
+      title: ChatCompletionChoiceMessage
+    ChatCompletionContentAudio:
+      properties:
+        type:
+          type: string
+          const: audio_url
+          title: Type
+        audio_url:
+          $ref: '#/components/schemas/URL'
+      type: object
+      required:
+      - type
+      - audio_url
+      title: ChatCompletionContentAudio
+    DoneChunk:
+      properties:
+        id:
+          description: A unique identifier for the chat completion
+          title: Id
+          type: string
+        object:
+          default: chat.completion.chunk
+          description: The object type
+          title: Object
+          type: string
+        created:
+          description: The Unix timestamp (in seconds) of when the chat completion was created.
+          title: Created
+          type: integer
+        model:
+          description: The model used for the chat completion.
+          title: Model
+          type: string
+        choices:
+          description: List of choices with final delta
+          items:
+            $ref: '#/components/schemas/ChoiceFinal'
+          title: Choices
+          type: array
+        usage:
+          anyOf:
+          - $ref: '#/components/schemas/CompletionUsage'
+          - type: 'null'
+          default: null
+          description: Usage statistics for the completion request.
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          default: null
+          description: Additional metadata associated with the completion.
+          title: Metadata
+      required:
+      - id
+      - created
+      - model
+      - choices
+      title: DoneChunk
+      type: object
+    ChatCompletionAssistantMessageParam:
+      properties:
+        role:
+          type: string
+          const: assistant
+          title: Role
+        content:
+          anyOf:
+          - type: string
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/ChatCompletionContentPartTextParam'
+              - $ref: '#/components/schemas/ChatCompletionContentPartRefusalParam'
+            type: array
+          - type: 'null'
+          title: Content
+        name:
+          type: string
+          title: Name
+        tool_calls:
+          anyOf:
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/ChatCompletionToolCall'
+              - $ref: '#/components/schemas/ChatCompletionFunctionToolCall'
+            type: array
+          - type: 'null'
+          title: Tool Calls
+      type: object
+      required:
+      - role
+      title: ChatCompletionAssistantMessageParam
+    ToolCallChunk:
+      properties:
+        id:
+          description: A unique identifier for the chat completion
+          title: Id
+          type: string
+        object:
+          default: chat.completion.chunk
+          description: The object type
+          title: Object
+          type: string
+        created:
+          description: The Unix timestamp (in seconds) of when the chat completion was created.
+          title: Created
+          type: integer
+        model:
+          description: The model used for the chat completion.
+          title: Model
+          type: string
+        choices:
+          description: A list of chat completion choices.Can be more than one if `n` is greater than 1.
+          items:
+            $ref: '#/components/schemas/ChoiceToolCall'
+          title: Choices
+          type: array
+      required:
+      - id
+      - created
+      - model
+      - choices
+      title: ToolCallChunk
+      type: object
+    ProgressMessage:
+      description: Bilingual progress message
+      properties:
+        en:
+          description: Progress message in English
+          title: En
+          type: string
+        ar:
+          description: Progress message in Arabic
+          title: Ar
+          type: string
+      required:
+      - en
+      - ar
+      title: ProgressMessage
+      type: object
+    ChoiceError:
+      properties:
+        index:
+          default: 0
+          title: Index
+          type: integer
+        delta:
+          $ref: '#/components/schemas/DeltaContent'
+        finish_reason:
+          default: error
+          title: Finish Reason
+          type: string
+      required:
+      - delta
+      title: ChoiceError
+      type: object
+    ChatCompletionChoice-Output:
+      properties:
+        finish_reason:
+          type: string
+          enum:
+          - stop
+          - length
+          - tool_calls
+          - content_filter
+          - function_call
+          title: Finish Reason
+        index:
+          type: integer
+          title: Index
+        logprobs:
+          anyOf:
+          - $ref: '#/components/schemas/ChoiceLogprobs-Output'
+          - type: 'null'
+        message:
+          $ref: '#/components/schemas/ChatCompletionChoiceMessage-Output'
+      additionalProperties: true
+      type: object
+      required:
+      - finish_reason
+      - index
+      - message
+      title: ChatCompletionChoice
+    ToolCallData:
+      description: Tool call in delta.tool_calls
+      properties:
+        index:
+          description: The index of the tool call in the list
+          title: Index
+          type: integer
+        id:
+          description: The unique identifier for the tool call
+          title: Id
+          type: string
+        type:
+          default: function
+          description: The type of the tool call
+          title: Type
+          type: string
+        function:
+          $ref: '#/components/schemas/FunctionData'
+      required:
+      - index
+      - id
+      - function
+      title: ToolCallData
+      type: object
+    SourcesEnum:
+      type: string
+      enum:
+      - islam_qa
+      - islamweb
+      - islamweb_fatwa
+      - islamweb_consult
+      - islamweb_article
+      - islamweb_library
+      - sunnah
+      - quran
+      - tafsir
+      - dorar
+      - islamonline
+      - shamela
+      title: SourcesEnum
+    ChoiceToolCall:
+      properties:
+        index:
+          default: 0
+          title: Index
+          type: integer
+        finish_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: The reason the model stopped generating
+          title: Finish Reason
+        delta:
+          $ref: '#/components/schemas/DeltaToolCalls'
+      required:
+      - delta
+      title: ChoiceToolCall
+      type: object
+    ChatCompletionContentPartVideoParam:
+      properties:
+        video_url:
+          $ref: '#/components/schemas/VideoURL'
+        type:
+          type: string
+          const: video_url
+          title: Type
+      type: object
+      required:
+      - video_url
+      - type
+      title: ChatCompletionContentPartVideoParam
+    ChatCompletionContentPartImageParam:
+      properties:
+        image_url:
+          $ref: '#/components/schemas/ImageURL'
+        type:
+          type: string
+          const: image_url
+          title: Type
+      type: object
+      required:
+      - image_url
+      - type
+      title: ChatCompletionContentPartImageParam
     ErrorChunk:
       description: Error chunk
       properties:
@@ -1997,6 +2337,32 @@ components:
       - choices
       title: ErrorChunk
       type: object
+    DeltaToolResult:
+      properties:
+        tool_result:
+          $ref: '#/components/schemas/ToolResultData'
+          description: The list of tool call results returned by the executed tools.
+      required:
+      - tool_result
+      title: DeltaToolResult
+      type: object
+    PromptTokensDetails:
+      additionalProperties: true
+      properties:
+        audio_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Audio Tokens
+        cached_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Cached Tokens
+      title: PromptTokensDetails
+      type: object
     ProgressData:
       description: Progress event data
       properties:
@@ -2016,128 +2382,35 @@ components:
       required:
       - url
       title: URL
-    ChoiceLogprobs-Output:
+    ProgressChunk:
       properties:
-        content:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChatCompletionTokenLogprob'
-            type: array
-          - type: 'null'
-          title: Content
-        refusal:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChatCompletionTokenLogprob'
-            type: array
-          - type: 'null'
-          title: Refusal
-      additionalProperties: true
-      type: object
-      title: ChoiceLogprobs
-    ChatCompletionChoiceMessage-Output:
-      properties:
-        content:
-          anyOf:
-          - type: string
-          - items:
-              anyOf:
-              - $ref: '#/components/schemas/ChatCompletionContentText'
-              - $ref: '#/components/schemas/ChatCompletionContentImage'
-              - $ref: '#/components/schemas/ChatCompletionContentAudio'
-            type: array
-          - type: 'null'
-          title: Content
-        role:
+        id:
+          description: A unique identifier for the chat completion
+          title: Id
           type: string
-          const: assistant
-          title: Role
-        references:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChatCompletionChoiceMessageReference'
-            type: array
-          - type: 'null'
-          title: references
-          description: The list of references used in the response
-        tool_calls:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ChatCompletionToolCall'
-            type: array
-          - type: 'null'
-          title: tool_calls
-          description: The list of tool calls made by the assistant.
-      type: object
-      required:
-      - role
-      title: ChatCompletionChoiceMessage
-    ChatCompletionUserMessageParam:
-      properties:
-        content:
-          anyOf:
-          - type: string
-          - items:
-              anyOf:
-              - $ref: '#/components/schemas/ChatCompletionContentPartTextParam'
-              - $ref: '#/components/schemas/ChatCompletionContentPartImageParam'
-              - $ref: '#/components/schemas/ChatCompletionContentPartVideoParam'
-            type: array
-          title: Content
-        role:
+        object:
+          default: chat.completion.chunk
+          description: The object type
+          title: Object
           type: string
-          const: user
-          title: Role
-        name:
-          type: string
-          title: Name
-      type: object
-      required:
-      - content
-      - role
-      title: ChatCompletionUserMessageParam
-    MadhabEnum:
-      type: string
-      enum:
-      - all
-      - hanafi
-      - maliki
-      - shafii
-      - hanbali
-      title: MadhabEnum
-    ChoiceToolCall:
-      properties:
-        index:
-          default: 0
-          title: Index
+        created:
+          description: The Unix timestamp (in seconds) of when the chat completion was created.
+          title: Created
           type: integer
-        finish_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          description: The reason the model stopped generating
-          title: Finish Reason
-        delta:
-          $ref: '#/components/schemas/DeltaToolCalls'
-      required:
-      - delta
-      title: ChoiceToolCall
-      type: object
-    ChatCompletionContentPartTextParam:
-      properties:
-        text:
+        model:
+          description: The model used for the chat completion.
+          title: Model
           type: string
-          title: Text
-        type:
-          type: string
-          const: text
-          title: Type
-      type: object
+        progress:
+          $ref: '#/components/schemas/ProgressData'
+          description: Progress event indicating current processing step
       required:
-      - text
-      - type
-      title: ChatCompletionContentPartTextParam
+      - id
+      - created
+      - model
+      - progress
+      title: ProgressChunk
+      type: object
   securitySchemes:
     Bearer:
       type: http

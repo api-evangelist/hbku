@@ -1,8 +1,159 @@
 openapi: 3.2.0
 info:
   title: Fanar Models API
-  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
-  termsOfService: https://fanar.qa/terms-of-services
+  description: 'You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+
+    Base URL: https://api.fanar.qa
+
+    Request API Access: https://api.fanar.qa/request
+
+    Models and release history: https://fanar.qa/en/models
+
+    Rate Limits
+
+
+    To ensure fair usage and optimal performance for all users, our API has rate limits in place. When you exceed a rate limit, your request will typically receive a 429 Too Many Requests HTTP status code.
+
+
+    Limits by model
+
+
+    These are our default settings for all models. We understand that your needs may vary. If your application requires higher throughput or more tailored rate limits for specific models, please contact us:
+
+
+    Model
+
+    Rate Limit
+
+
+    Fanar
+
+    50 requests/minute
+
+
+    Fanar-S-1-7B
+
+    50 requests/minute
+
+
+    Fanar-C-1-8.7B
+
+    50 requests/minute
+
+
+    Fanar-C-2-27B
+
+    50 requests/minute
+
+
+    Fanar-2.0-Tools
+
+    50 requests/minute
+
+
+    Fanar-Sadiq
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2 (validate)
+
+    200 requests/minute
+
+
+    Fanar-Sadiq-2 (deep research)
+
+    20 requests/day
+
+
+    Fanar-Sadiq-TTS-1
+
+    20 requests/day
+
+
+    Fanar-Oryx-IVU-2
+
+    20 requests/day
+
+
+    Fanar-Aura-TTS-2
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-1
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-LF-1
+
+    10 requests/day
+
+
+    Fanar-3.0-Aura-Transcribe (live stream sessions)
+
+    20 requests/day
+
+
+    Fanar-Oryx-IG-2
+
+    20 requests/day
+
+
+    Fanar-Guard-2
+
+    50 requests/minute
+
+
+    Fanar-Shaheen-MT-1
+
+    20 requests/day
+
+
+    Fanar-3.0-Shaheen-Translate
+
+    20 requests/day
+
+
+    Fanar-Diwan
+
+    50 requests/minute
+
+
+    Response headers
+
+
+    Every rate-limited response reports your current quota, so you can back off before being throttled:
+
+
+    Header
+
+    Description
+
+
+    x-ratelimit-limitRequests allowed per window.
+
+
+    x-ratelimit-remainingRequests still available in the current window.
+
+
+    x-ratelimit-resetSeconds until a request slot frees up.
+
+
+    ratelimit-policyThe quota and its window in seconds, as limit;w=seconds — so 100;w=86400 means 100 requests per day.
+
+
+    retry-afterSeconds to wait before retrying, sent only on a 429. When your own quota ran out it counts down to a free slot; when an upstream service throttled the request it carries that service''s own hint instead.
+
+
+    Because x-ratelimit-limit alone cannot tell 3 per minute from 3 per day, read ratelimit-policy when you need the window. These headers are omitted for API keys with unlimited quota.'
+  termsOfService: https://api.fanar.qa/terms-of-service
   contact:
     name: Fanar Support
     url: https://fanar.qa/
@@ -186,45 +337,13 @@ paths:
         source: "import requests\n\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\",\n}\n\nresponse = requests.get(\"https://api.fanar.qa/v1/models\", headers=headers)\n\nprint(response.json())"
 components:
   schemas:
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
-    ModelsResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the models.
-        models:
-          items:
-            $ref: '#/components/schemas/AvailableModel'
-          type: array
-          title: Models
-          description: The available models.
-      type: object
-      required:
-      - id
-      - models
-      title: ModelsResponse
+    ErrorContentFilterType:
+      type: string
+      enum:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
     AvailableModel:
       properties:
         id:
@@ -249,6 +368,63 @@ components:
       - created
       - owned_by
       title: AvailableModel
+    ModelsResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the models.
+        models:
+          items:
+            $ref: '#/components/schemas/AvailableModel'
+          type: array
+          title: Models
+          description: The available models.
+      type: object
+      required:
+      - id
+      - models
+      title: ModelsResponse
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
     ModelObject:
       type: string
       enum:
@@ -272,31 +448,6 @@ components:
       - no_longer_supported
       - client_closed_request
       title: ErrorCode
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
-    ErrorContentFilterType:
-      type: string
-      enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
   securitySchemes:
     Bearer:
       type: http

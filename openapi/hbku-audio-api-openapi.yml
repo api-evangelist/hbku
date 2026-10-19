@@ -1,8 +1,159 @@
 openapi: 3.2.0
 info:
   title: Fanar Audio API
-  description: You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
-  termsOfService: https://fanar.qa/terms-of-services
+  description: 'You can interact with FanarAPI for seamless chat completion and text processing using Fanar.
+
+    Base URL: https://api.fanar.qa
+
+    Request API Access: https://api.fanar.qa/request
+
+    Models and release history: https://fanar.qa/en/models
+
+    Rate Limits
+
+
+    To ensure fair usage and optimal performance for all users, our API has rate limits in place. When you exceed a rate limit, your request will typically receive a 429 Too Many Requests HTTP status code.
+
+
+    Limits by model
+
+
+    These are our default settings for all models. We understand that your needs may vary. If your application requires higher throughput or more tailored rate limits for specific models, please contact us:
+
+
+    Model
+
+    Rate Limit
+
+
+    Fanar
+
+    50 requests/minute
+
+
+    Fanar-S-1-7B
+
+    50 requests/minute
+
+
+    Fanar-C-1-8.7B
+
+    50 requests/minute
+
+
+    Fanar-C-2-27B
+
+    50 requests/minute
+
+
+    Fanar-2.0-Tools
+
+    50 requests/minute
+
+
+    Fanar-Sadiq
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2
+
+    50 requests/minute
+
+
+    Fanar-Sadiq-2 (validate)
+
+    200 requests/minute
+
+
+    Fanar-Sadiq-2 (deep research)
+
+    20 requests/day
+
+
+    Fanar-Sadiq-TTS-1
+
+    20 requests/day
+
+
+    Fanar-Oryx-IVU-2
+
+    20 requests/day
+
+
+    Fanar-Aura-TTS-2
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-1
+
+    20 requests/day
+
+
+    Fanar-Aura-STT-LF-1
+
+    10 requests/day
+
+
+    Fanar-3.0-Aura-Transcribe (live stream sessions)
+
+    20 requests/day
+
+
+    Fanar-Oryx-IG-2
+
+    20 requests/day
+
+
+    Fanar-Guard-2
+
+    50 requests/minute
+
+
+    Fanar-Shaheen-MT-1
+
+    20 requests/day
+
+
+    Fanar-3.0-Shaheen-Translate
+
+    20 requests/day
+
+
+    Fanar-Diwan
+
+    50 requests/minute
+
+
+    Response headers
+
+
+    Every rate-limited response reports your current quota, so you can back off before being throttled:
+
+
+    Header
+
+    Description
+
+
+    x-ratelimit-limitRequests allowed per window.
+
+
+    x-ratelimit-remainingRequests still available in the current window.
+
+
+    x-ratelimit-resetSeconds until a request slot frees up.
+
+
+    ratelimit-policyThe quota and its window in seconds, as limit;w=seconds — so 100;w=86400 means 100 requests per day.
+
+
+    retry-afterSeconds to wait before retrying, sent only on a 429. When your own quota ran out it counts down to a free slot; when an upstream service throttled the request it carries that service''s own hint instead.
+
+
+    Because x-ratelimit-limit alone cannot tell 3 per minute from 3 per day, read ratelimit-policy when you need the window. These headers are omitted for API keys with unlimited quota.'
+  termsOfService: https://api.fanar.qa/terms-of-service
   contact:
     name: Fanar Support
     url: https://fanar.qa/
@@ -41,7 +192,7 @@ paths:
                 type: string
                 format: uuid
             X-Revised-Input:
-              description: The processed input text after Quran validation and tagging. This header is only present when using the Fanar-Sadiq-TTS model. The validator identifies Quranic verses in the input and wraps them with XML-style tags (e.g., `<quran_start>`, `<quran_end>`) for proper handling during text-to-speech processing. It may also apply corrections such as diacritical marks normalization or verse formatting. If no Quranic content was detected or no modifications were needed, this header will be absent.
+              description: The processed input text after Quran and hadith validation and tagging. This header is only present when using the Fanar-Sadiq-TTS model. The validator identifies Quranic verses and hadith in the input; verses are wrapped with XML-style tags (e.g., `<quran_start>`, `<quran_end>`) for proper handling during text-to-speech processing, and corrections such as diacritical marks normalization or verse formatting may be applied. Hadith tags and the markdown reference links the validator adds (quran.com / sunnah.com) are stripped before synthesis, so this header reflects the exact text sent to the speech backend. If no Qur'anic verses or hadith were detected or no modifications were needed, this header will be absent.
               schema:
                 type: string
           content:
@@ -410,6 +561,103 @@ paths:
       - lang: Python - requests with longform audio (JSON format)
         label: Python - requests with longform audio (JSON format)
         source: "# Audio Transcriptions requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/transcriptions\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\"\n}\nfiles = {\n    \"file\": open(\"sample.wav\", \"rb\")\n}\ndata = {\n    \"model\": \"Fanar-Aura-STT-LF-1\",\n    \"format\": \"json\"\n}\n\nresponse = requests.post(url, headers=headers, files=files, data=data)\n\nprint(response.json().get(\"json\"))"
+  /v1/audio/transcriptions/stream:
+    get:
+      tags:
+      - Audio
+      summary: Create Streaming Transcription
+      description: 'Transcribes live audio over a WebSocket, returning the text while the speaker talks.
+
+        Send the audio as binary frames (16 kHz, mono, 16-bit PCM) and {"type": "input.end"} when it is over. The server replies with transcript.partial and transcript.final events, then session.ended with the full text and a reason: completed after input.end, max_duration, idle_timeout (no audio for 30 seconds) or upstream_error. A session lasts up to the maximum set for your API key (600 seconds by default), given in session.started. Connect from your server: browsers cannot set the Authorization header on a WebSocket.'
+      operationId: create_streaming_transcription
+      parameters:
+      - name: model
+        in: query
+        required: true
+        description: The model to use for live speech-to-text.
+        schema:
+          type: string
+          enum:
+          - Fanar-3.0-Aura-Transcribe
+      responses:
+        '101':
+          description: 'Switching Protocols: the WebSocket is open, and the first event is <code>session.started</code>.'
+        '401':
+          description: Invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authentication
+                  message: Invalid authentication
+                  status: 401
+        '403':
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: invalid_authorization
+                  message: Invalid authorization
+                  status: 403
+        '429':
+          description: Rate limit reached or Exceeded quota
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: exceeded_quota
+                  message: Exceeded quota
+                  status: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: internal_server_error
+                  message: Internal server error
+                  status: 500
+        '503':
+          description: Service overloaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: overloaded
+                  message: Service overloaded
+                  status: 503
+        '422':
+          description: Unprocessable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Unprocessable
+                  status: 422
+      x-codeSamples:
+      - lang: Python
+        label: Python - stream a file
+        source: "# Live streaming transcription requires the speech_to_text_stream feature and is not allowed by default.\n# pip install \"websockets>=14\"\nimport asyncio\nimport json\nimport wave\n\nimport websockets\n\nURL = \"wss://api.fanar.qa/v1/audio/transcriptions/stream?model=Fanar-3.0-Aura-Transcribe\"\nHEADERS = {\"Authorization\": \"Bearer YOUR_API_KEY\"}\nFRAME_SECONDS = 0.1  # 100 ms of audio per frame\n\n\nasync def send_audio(ws, path):\n    # 16 kHz, mono, 16-bit PCM. A WAV file's frames are exactly what the stream takes.\n    with wave.open(path, \"rb\") as wav:\n        assert (wav.getframerate(), wav.getnchannels(), wav.getsampwidth()) == (16000, 1, 2)\n        frames_per_chunk = int(16000 * FRAME_SECONDS)\n        while chunk := wav.readframes(frames_per_chunk):\n            await ws.send(chunk)                  # a binary frame is audio\n            await asyncio.sleep(FRAME_SECONDS)    # paced like a live speaker\n    await ws.send(json.dumps({\"type\": \"input.end\"}))  # no more audio\n\n\nasync def main():\n    async with websockets.connect(URL, additional_headers=HEADERS) as ws:\n        sender = None\n        async for raw in ws:\n            event = json.loads(raw)\n            kind = event[\"type\"]\n            if kind == \"session.started\":\n                print(f\"session {event['id']}: up to {event['max_duration_seconds']}s\")\n                sender = asyncio.create_task(send_audio(ws, \"sample.wav\"))\n            elif kind == \"transcript.partial\":\n                # The open segment so far. Not cumulative: replace it in place.\n                print(f\"\\r... {event['text']}\", end=\"\", flush=True)\n            elif kind == \"transcript.final\":\n                # That segment is done. Keep it; finals in segment order are the transcript.\n                print(f\"\\r{event['text']}\")\n            elif kind == \"session.expiring\":\n                print(f\"\\n{event['seconds_remaining']}s left in this session\")\n            elif kind == \"error\":\n                print(f\"\\nerror {event['code']}: {event['message']}\")\n            elif kind == \"session.ended\":\n                print(f\"\\nended ({event['reason']}): {event['text']}\")\n        if sender:\n            sender.cancel()\n\n\nasyncio.run(main())\n"
+      - lang: Python - microphone
+        label: Python - microphone
+        source: "# Live streaming transcription requires the speech_to_text_stream feature and is not allowed by default.\n# pip install \"websockets>=14\" sounddevice\nimport asyncio\nimport json\nimport signal\n\nimport sounddevice as sd\nimport websockets\n\nURL = \"wss://api.fanar.qa/v1/audio/transcriptions/stream?model=Fanar-3.0-Aura-Transcribe\"\nHEADERS = {\"Authorization\": \"Bearer YOUR_API_KEY\"}\n\n\nasync def main():\n    loop = asyncio.get_running_loop()\n    audio = asyncio.Queue()\n    stop = asyncio.Event()\n    loop.add_signal_handler(signal.SIGINT, stop.set)  # Ctrl-C finishes the input, not the program\n\n    def on_audio(indata, frames, time, status):\n        loop.call_soon_threadsafe(audio.put_nowait, bytes(indata))\n\n    async def send(ws):\n        # 1600 samples = 100 ms per frame, already 16 kHz mono 16-bit PCM.\n        with sd.RawInputStream(samplerate=16000, channels=1, dtype=\"int16\",\n                               blocksize=1600, callback=on_audio):\n            while not stop.is_set():\n                try:\n                    chunk = await asyncio.wait_for(audio.get(), timeout=0.5)\n                except asyncio.TimeoutError:\n                    continue\n                await ws.send(chunk)\n        await ws.send(json.dumps({\"type\": \"input.end\"}))\n\n    async with websockets.connect(URL, additional_headers=HEADERS) as ws:\n        started = json.loads(await ws.recv())\n        deadline = loop.time() + started[\"max_duration_seconds\"]\n        print(f\"Speak now (up to {started['max_duration_seconds']}s). Ctrl-C to finish.\")\n        sender = asyncio.create_task(send(ws))\n        async for raw in ws:\n            event = json.loads(raw)\n            left = max(0, int(deadline - loop.time()))\n            if event[\"type\"] == \"transcript.partial\":\n                print(f\"\\r[{left:>3}s] {event['text']}\", end=\"\", flush=True)\n            elif event[\"type\"] == \"transcript.final\":\n                print(f\"\\r[{left:>3}s] {event['text']}\")\n            elif event[\"type\"] == \"session.expiring\":\n                print(f\"\\n{event['seconds_remaining']}s left - wrap up\")\n            elif event[\"type\"] == \"session.ended\":\n                print(f\"\\nended ({event['reason']}): {event['text']}\")\n        stop.set()\n        await asyncio.gather(sender, return_exceptions=True)\n\n\nasyncio.run(main())\n"
+      - lang: JavaScript
+        label: Node.js - ws
+        source: "// Live streaming transcription requires the speech_to_text_stream feature and is not allowed by default.\n// npm install ws   (Node 18+, saved as stream.mjs)\nimport fs from \"node:fs\";\nimport WebSocket from \"ws\";\n\nconst URL = \"wss://api.fanar.qa/v1/audio/transcriptions/stream?model=Fanar-3.0-Aura-Transcribe\";\nconst ws = new WebSocket(URL, { headers: { Authorization: \"Bearer YOUR_API_KEY\" } });\n\n// The upgrade was refused (401, 403, 422, 429, 503) -- nothing was streamed.\nws.on(\"unexpected-response\", (req, res) => {\n  console.error(`refused: HTTP ${res.statusCode}`, res.headers[\"retry-after\"] ?? \"\");\n});\n\nws.on(\"message\", (data) => {\n  const event = JSON.parse(data.toString());\n  switch (event.type) {\n    case \"session.started\":\n      console.log(`session ${event.id}: up to ${event.max_duration_seconds}s`);\n      streamFile(\"sample.wav\");\n      break;\n    case \"transcript.partial\": // the open segment so far; replace it in place\n      process.stdout.write(`\\r... ${event.text}`);\n      break;\n    case \"transcript.final\": // that segment is done; keep it\n      process.stdout.write(`\\r${event.text}\\n`);\n      break;\n    case \"session.expiring\":\n      console.log(`\\n${event.seconds_remaining}s left in this session`);\n      break;\n    case \"error\":\n      console.error(`\\nerror ${event.code}: ${event.message}`);\n      break;\n    case \"session.ended\":\n      console.log(`\\nended (${event.reason}): ${event.text}`);\n      break;\n  }\n});\n\nws.on(\"close\", (code) => console.log(`closed with ${code}`));\n\nasync function streamFile(path) {\n  // A canonical 16 kHz mono 16-bit WAV: skip its 44-byte header, send 100 ms (3200 bytes) at a time.\n  const pcm = fs.readFileSync(path).subarray(44);\n  for (let i = 0; i < pcm.length; i += 3200) {\n    if (ws.readyState !== WebSocket.OPEN) return;\n    ws.send(pcm.subarray(i, i + 3200));\n    await new Promise((resolve) => setTimeout(resolve, 100));\n  }\n  ws.send(JSON.stringify({ type: \"input.end\" }));\n}\n"
   /v1/audio/voices:
     get:
       tags:
@@ -978,6 +1226,40 @@ paths:
         source: "# Voice personalization requires additional authorization and is not allowed by default.\n\nimport requests\n\nurl = \"https://api.fanar.qa/v1/audio/voices/{name}\"\nheaders = {\n    \"Authorization\": \"Bearer YOUR_API_KEY\",\n    \"Content-Type\": \"application/json\"\n}\nrequests.delete(url, headers=headers)\n"
 components:
   schemas:
+    VoiceResponse:
+      properties:
+        voices:
+          items:
+            $ref: '#/components/schemas/Voice'
+          type: array
+          title: Voices
+          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
+      type: object
+      required:
+      - voices
+      title: VoiceResponse
+      example:
+        voices:
+        - accent: British
+          emotion: false
+          gender: Female
+          languages:
+          - en
+          name: Amelia
+          name_ar: أميليا
+          type: public
+        - accent: Gulf
+          emotion: false
+          gender: Male
+          languages:
+          - ar
+          name: Hamad
+          name_ar: حمد
+          type: public
+        - emotion: false
+          languages: []
+          name: MyVoice
+          type: personal
     QuranReciters:
       type: string
       enum:
@@ -985,30 +1267,67 @@ components:
       - maher-al-muaiqly
       - mahmoud-al-husary
       title: QuranReciters
-    ErrorCode:
+    ErrorContentFilterType:
       type: string
       enum:
-      - content_filter
-      - invalid_authentication
-      - invalid_authorization
-      - rate_limit_reached
-      - exceeded_quota
-      - internal_server_error
-      - overloaded
-      - timeout
-      - too_large
-      - unprocessable
-      - conflict
-      - Not found
-      - no_longer_supported
-      - client_closed_request
-      title: ErrorCode
-    TTSModels:
+      - safety
+      - blocklist
+      - incomplete
+      title: ErrorContentFilterType
+    ErrorStatus:
+      type: integer
+      enum:
+      - 400
+      - 401
+      - 403
+      - 429
+      - 429
+      - 500
+      - 503
+      - 504
+      - 413
+      - 422
+      - 409
+      - 404
+      - 410
+      - 499
+      title: ErrorStatus
+    STTModels:
       type: string
       enum:
-      - Fanar-Aura-TTS-2
-      - Fanar-Sadiq-TTS-1
-      title: TTSModels
+      - Fanar-Aura-STT-1
+      - Fanar-Aura-STT-LF-1
+      title: STTModels
+    STTSegement:
+      properties:
+        speaker:
+          type: string
+          title: Speaker
+          description: The speaker label for the segment.
+        start_time:
+          type: number
+          title: Start Time
+          description: The start time of the segment in seconds.
+        end_time:
+          type: number
+          title: End Time
+          description: The end time of the segment in seconds.
+        duration:
+          type: number
+          title: Duration
+          description: The duration of the segment in seconds.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text segment.
+      type: object
+      required:
+      - speaker
+      - start_time
+      - end_time
+      - duration
+      - text
+      title: STTSegement
     SpeechToTextResponseWithJson-Output:
       properties:
         id:
@@ -1023,6 +1342,28 @@ components:
       - id
       - json
       title: SpeechToTextResponseWithJson
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          title: Message
+          default: Internal server error
+        status:
+          $ref: '#/components/schemas/ErrorStatus'
+          default: 500
+        param:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ErrorContentFilterType'
+          - type: 'null'
+      type: object
+      title: Error
     TextToSpeechRequest:
       properties:
         model:
@@ -1077,123 +1418,12 @@ components:
         model: Fanar-Aura-TTS-2
         input: Hello, welcome to Fanar!
         voice: Harry
-    VoiceResponse:
-      properties:
-        voices:
-          items:
-            $ref: '#/components/schemas/Voice'
-          type: array
-          title: Voices
-          description: Available voices. Always includes the built-in public voices. Includes personalized voices registered for this API key when voice personalization is authorized.
-      type: object
-      required:
-      - voices
-      title: VoiceResponse
-      example:
-        voices:
-        - accent: British
-          emotion: false
-          gender: Female
-          languages:
-          - en
-          name: Amelia
-          name_ar: أميليا
-          type: public
-        - accent: Gulf
-          emotion: false
-          gender: Male
-          languages:
-          - ar
-          name: Hamad
-          name_ar: حمد
-          type: public
-        - emotion: false
-          languages: []
-          name: MyVoice
-          type: personal
-    Body_create_transcription_v1_audio_transcriptions_post:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-          description: The audio blob to transcribe.
-        model:
-          $ref: '#/components/schemas/STTModels'
-          description: 'The model to use for the speech-to-text.
-
-            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
-
-            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
-        format:
-          $ref: '#/components/schemas/STTFormat'
-          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
-
-            - `text`: Plain text format.
-
-            - `srt`: SubRip Subtitle format.
-
-            - `json`: JSON format with detailed transcription data.'
-          default: text
-      type: object
-      required:
-      - file
-      - model
-      title: Body_create_transcription_v1_audio_transcriptions_post
-    ErrorStatus:
-      type: integer
-      enum:
-      - 400
-      - 401
-      - 403
-      - 429
-      - 429
-      - 500
-      - 503
-      - 504
-      - 413
-      - 422
-      - 409
-      - 404
-      - 410
-      - 499
-      title: ErrorStatus
-    ErrorContentFilterType:
+    TTSResponseFormat:
       type: string
       enum:
-      - safety
-      - blocklist
-      - incomplete
-      title: ErrorContentFilterType
-    STTFormat:
-      type: string
-      enum:
-      - text
-      - srt
-      - json
-      title: STTFormat
-    Error:
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-          title: Message
-          default: Internal server error
-        status:
-          $ref: '#/components/schemas/ErrorStatus'
-          default: 500
-        param:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/ErrorContentFilterType'
-          - type: 'null'
-      type: object
-      title: Error
+      - mp3
+      - wav
+      title: TTSResponseFormat
     SpeechToTextResponseWithSRT:
       properties:
         id:
@@ -1209,78 +1439,6 @@ components:
       - id
       - srt
       title: SpeechToTextResponseWithSRT
-    Body_create_voice_v1_audio_voices_post:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: The name of the personalized voice to be created.
-        audio:
-          type: string
-          format: binary
-          title: Audio
-          description: The audio sample to create the personalized voice. Only WAV format is accepted.
-        transcript:
-          type: string
-          title: Transcript
-          description: The transcript of the audio sample.
-      type: object
-      required:
-      - name
-      - audio
-      - transcript
-      title: Body_create_voice_v1_audio_voices_post
-    STTSegement:
-      properties:
-        speaker:
-          type: string
-          title: Speaker
-          description: The speaker label for the segment.
-        start_time:
-          type: number
-          title: Start Time
-          description: The start time of the segment in seconds.
-        end_time:
-          type: number
-          title: End Time
-          description: The end time of the segment in seconds.
-        duration:
-          type: number
-          title: Duration
-          description: The duration of the segment in seconds.
-        text:
-          type: string
-          title: Text
-          description: The transcribed text segment.
-      type: object
-      required:
-      - speaker
-      - start_time
-      - end_time
-      - duration
-      - text
-      title: STTSegement
-    TTSResponseFormat:
-      type: string
-      enum:
-      - mp3
-      - wav
-      title: TTSResponseFormat
-    SpeechToTextResponseWithText:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: A unique identifier for the speech-to-text.
-        text:
-          type: string
-          title: Text
-          description: The transcribed text.
-      type: object
-      required:
-      - id
-      - text
-      title: SpeechToTextResponseWithText
     SpeechToTextResponseJson:
       properties:
         segments:
@@ -1293,12 +1451,30 @@ components:
       required:
       - segments
       title: SpeechToTextResponseJson
-    STTModels:
+    TTSModels:
       type: string
       enum:
-      - Fanar-Aura-STT-1
-      - Fanar-Aura-STT-LF-1
-      title: STTModels
+      - Fanar-Aura-TTS-2
+      - Fanar-Sadiq-TTS-1
+      title: TTSModels
+    ErrorCode:
+      type: string
+      enum:
+      - content_filter
+      - invalid_authentication
+      - invalid_authorization
+      - rate_limit_reached
+      - exceeded_quota
+      - internal_server_error
+      - overloaded
+      - timeout
+      - too_large
+      - unprocessable
+      - conflict
+      - Not found
+      - no_longer_supported
+      - client_closed_request
+      title: ErrorCode
     Voice:
       properties:
         name:
@@ -1369,6 +1545,78 @@ components:
         name: Amelia
         name_ar: أميليا
         type: public
+    Body_create_transcription_v1_audio_transcriptions_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: The audio blob to transcribe.
+        model:
+          $ref: '#/components/schemas/STTModels'
+          description: 'The model to use for the speech-to-text.
+
+            - `Fanar-Aura-STT-1`: For short audio clips (up to 20–30 seconds).
+
+            - `Fanar-Aura-STT-LF-1`: For long-form transcription of longer audio files.'
+        format:
+          $ref: '#/components/schemas/STTFormat'
+          description: 'The format of the transcribed text. `Fanar-Aura-STT-1` only supports `text` format.
+
+            - `text`: Plain text format.
+
+            - `srt`: SubRip Subtitle format.
+
+            - `json`: JSON format with detailed transcription data.'
+          default: text
+      type: object
+      required:
+      - file
+      - model
+      title: Body_create_transcription_v1_audio_transcriptions_post
+    Body_create_voice_v1_audio_voices_post:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the personalized voice to be created.
+        audio:
+          type: string
+          format: binary
+          title: Audio
+          description: The audio sample to create the personalized voice. Only WAV format is accepted.
+        transcript:
+          type: string
+          title: Transcript
+          description: The transcript of the audio sample.
+      type: object
+      required:
+      - name
+      - audio
+      - transcript
+      title: Body_create_voice_v1_audio_voices_post
+    STTFormat:
+      type: string
+      enum:
+      - text
+      - srt
+      - json
+      title: STTFormat
+    SpeechToTextResponseWithText:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: A unique identifier for the speech-to-text.
+        text:
+          type: string
+          title: Text
+          description: The transcribed text.
+      type: object
+      required:
+      - id
+      - text
+      title: SpeechToTextResponseWithText
   securitySchemes:
     Bearer:
       type: http
