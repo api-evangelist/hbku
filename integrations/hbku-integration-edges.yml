@@ -6,7 +6,7 @@ edges:
   channel: provider-built
   relationship: compatible
   direction: provider-built
-  evidence: https://github.com/api-evangelist/hbku/blob/main/openapi/hbku-chat-completions-api-openapi.yml#L24
+  evidence: https://github.com/api-evangelist/hbku/blob/main/openapi/_superseded/2026-10-19-stale/hbku-chat-completions-api-openapi.yml#L24
   contract_reference:
     repo: hbku
     spec_file: hbku-chat-completions-api-openapi.yml
