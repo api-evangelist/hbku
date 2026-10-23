@@ -487,3 +487,9 @@ components:
       type: http
       scheme: bearer
       description: Provide your API key in the Authorization header using the Bearer scheme.
+x-provenance:
+  method: harvested
+  publisher: Hamad Bin Khalifa University
+  source: https://api.fanar.qa/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
